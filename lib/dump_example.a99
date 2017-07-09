@@ -1,0 +1,71 @@
+* FinalGROM 99 dump example code
+
+       ; your main program here
+       ; ...
+
+reloc_addr:
+       equ  >xxxx             ; any address in scratch pad or expansion RAM
+
+prepare:
+       ; dump current image, including RAM banks
+       li   r0, reloc_addr
+       li   r1, trampoline
+       li   r2, trampoline_end - trampoline
+!      mov  *r1+, *r0+
+       dect r2
+       jne  -!
+
+       b    @dump
+
+       even
+trampoline:
+       xorg reloc_addr
+
+       ; send filename to FinalGROM
+dump:
+       li   r0, dump_seq      ; this is the only non-relocatable instruction
+       li   r2, 20            ; sequence length: prefix (8) + sender (12)
+send:
+       clr  @>6000            ; signal new byte
+       li   r1, >0038         ; >7000 >> 9
+       movb *r0+, r1
+       src  r1, 7             ; >7000 + (byte << 1)
+;      clr  *r1               ; would destroy data in RAM
+       mov  *r1, r3           ; first read ...
+       mov  r3, *r1           ; ... then send
+
+       dec  r2
+       jne  send
+
+       clr  @>6000            ; done
+
+       ; wait for dump to be complete
+       src  r0, 8             ; burn at least 21 cycles
+wait:
+       li   r0, >6000         ; check >6000->6200
+       li   r2, >100
+!      mov  *r0+, r1
+       jne  done
+       dec  r2
+       jne  -!
+       jmp  wait
+
+       ; image has been dumped
+done:
+       b    @continue
+
+dump_seq:
+       ; send this to dump
+       text >99, 'OKFG99', >99
+       text '--------'        ; no filename
+       data >ff03             ; dump indicator
+       data >0000             ; no start address
+
+trampoline_end:
+       aorg
+
+continue:
+       ; continue your program here
+       ; ...
+
+       end

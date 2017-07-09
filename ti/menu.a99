@@ -1,0 +1,458 @@
+**********************************************************************
+*
+*  FinalGROM 99 Menu
+*
+*  Copyright (c) 2017 Ralph Benzinger <r@0x01.de>
+*
+*  This program is free software; you can redistribute it and/or
+*  modify it under the terms of the GNU General Public License
+*  as published by the Free Software Foundation; either version 3
+*  of the License, or (at your option) any later version.
+*
+*  This program is distributed in the hope that it will be useful,
+*  but WITHOUT ANY WARRANTY; without even the implied warranty of
+*  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+*  GNU General Public License for more details.
+*
+*  You should have received a copy of the GNU General Public License
+*  along with this program; if not, write to the Free Software
+*  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA, USA.
+*
+**********************************************************************
+
+* Memory layout of generated menu:
+*
+* >6000:          empty
+* >6010:          XMLTAB
+*                 menu and browser code
+* >6A00:          entries: 171x32 chars, padded with \00
+*                 TEXT 'FILENAME'
+*                 DATA <image type>
+*                 DATA <start address>
+*                 TEXT 'ENTRY NAME'       (20 chars)
+*         --or--  TEXT '/ FOLDER NAME'
+*
+* Image types: >00--  GROM
+*              >ff--  ROM
+* where        >---0  normal   --->     >--1-  ROM mode
+*              >ff01  folder            >--2-  GROM mode
+*              >ff02  Help Viewer       >--3-  ROM/GROM moder
+*              >--03  dump image
+*              >ff04  E/A5 programs  (not used)
+*              (no type for Reload)
+*
+* Scratchpad RAM usage:  >8300->83c3  sender and program loader
+*  (main program)        >83c4->83cf  help viewer invocation data
+*                        >83d0->83df  browser variables
+*                        >83e0->83ff  workspace
+
+       ref  vdpwa, vdpwd
+
+scratchpad:
+       equ  >8300
+ws:
+       equ  >83e0             ; workspace
+ws_r0lb:
+       equ  ws + 1
+ws_r3lb:
+       equ  ws + 7
+
+bytes_to_send:
+       equ  12                ; data stream for selecting program
+saved_scratchpad:
+       equ  >1000             ; unused VDP area in standard config
+saved_size:
+       equ  >e0               ; all scratchpad but ws
+
+       aorg >6000
+
+* GPL header
+
+; NOTE: The menu has been moved to grom.gpl so that v2.2 consoles
+;       can see the FinalGROM 99.
+
+;       data >aa01
+;       data >0000
+;       data >0000             ; power-up list
+;       data menu              ; program list
+;       data >0000             ; DSR list
+;       data >0000             ; subprogram list
+;       data 0
+;       data 0
+;
+;menu:
+;       data 0
+;       data title
+;       byte 12
+;       text 'FINALGROM 99'
+;       even
+
+* main program
+
+       data >9999, >9999, >9999, >9999  ; filler and no menu
+       data >9999, >9999, >9999, >9999
+
+xmltab:
+       data title             ; must be at >6010! (SADDR)
+
+       .ifne xmltab, >6010
+       .error "bad xmltab position"
+       .endif
+
+title:
+       limi 0
+       lwpi ws
+       mov  r11, r10          ; keep GPL r11
+       bl   @save_scratchpad  ; for maximum compatibility
+
+restart:
+       clr  @help_mode        ; checked in browser.a99
+
+       ; restore colors
+       li   r0, >380          ; help viewer text mode ...
+       li   r1, >1700         ; ... messes up color table
+       li   r2, 18
+       bl   @vsbmw
+
+       ; load char set and title/anim pattern
+       li   r0, >800 + (>20 * 8)
+       li   r1, font_data
+       li   r2, (>84 - >20 + 30) * 8
+       bl   @vmbw
+
+       ; title (assumes blank screen)
+       clr  r0
+       li   r1, title_text
+       li   r2, 32 + 30
+       bl   @vmbw
+
+       ; add color stripe
+       li   r0, >800 + (>90 * 8)  ; patterns
+       li   r3, 7
+!      li   r1, block_data
+       li   r2, 16
+       bl   @vmbw
+       ai   r0, >10 * 8
+       dec  r3
+       jne  -!
+
+       li   r0, >380 + 18     ; color
+       li   r1, color_data
+       li   r2, 14
+       bl   @vmbw
+
+       li   r0, 3 * 32        ; chars
+       li   r1, stripe_text
+       li   r2, 32
+       bl   @vmbw
+
+browser:
+       copy "browser.a99"
+
+* save most scratchpad state to VDP RAM
+
+save_scratchpad:
+       mov  r11, r9
+       li   r0, saved_scratchpad
+       li   r1, scratchpad
+       li   r2, saved_size
+       bl   @vmbw
+       b    *r9
+
+* loader for selected program
+
+load:
+       ; move sender to scratchpad RAM so that cart RAM can be overwritten
+       li   r0, scratchpad
+       li   r1, trampoline
+       li   r2, trampoline_end - trampoline
+!      mov  *r1+, *r0+
+       dect r2
+       jne  -!
+
+       ; sender setup         ; r5 = data of selected image
+       li   r0, >42fe         ; r0 = throbber position + VDP write bit
+       li   r2, bytes_to_send
+       mov  @10(r5), r6       ; r6 = start address
+       mov  @8(r5), r9        ; r9 = GROM (>00--) or ROM (>ff--)
+       li   r8, vdpwa         ; r8 = save space in loader
+
+       ; send image data
+       b    @send             ; jump to trampoline
+
+* trampoline containing sender and waiter
+
+       even
+trampoline:
+       xorg scratchpad
+
+       ; send selected image name to cart
+send:
+       li   r4, >0038         ; equals clock bit >> 9
+       movb *r5+, r4          ; byte to send
+       clr  @>6000            ; signal new byte
+       src  r4, 7             ; r4 = >7xyz, xyz = 2 * (byte to send)
+       clr  *r4               ; signal byte value
+       dec  r2                ; next byte
+       jne  send
+       clr  @>6000            ; done
+
+       ; wait for image and show animation
+anim_speed:
+       equ  >a00              ; also checks >a00 words for readiness
+
+animate:
+       dec  r3
+       movb @ws_r3lb, r1      ; throbber
+       andi r1, >0300         ; 4 different patterns
+       ori  r1, >8000
+       swpb r0                ; vsbw
+       movb r0, *r8
+       swpb r0
+       movb r0, *r8
+       movb r1, @vdpwd
+
+       ; busy wait until image is ready
+       li   r4, anim_speed    ; anim speed
+       li   r7, >6000         ; search address
+wait:
+       mov  *r7+, r2          ; image ready?
+       jne  ready
+       dec  r4
+       jne  wait
+       jmp  animate
+
+       ; image ready to run
+ready:
+       ; clear screen
+       bl   @vwm
+       data >0040         ; with write bit and swapped
+       data '  '
+       data 768
+
+       ; restore colors
+       bl   @vwm
+       data >8043         ; >380
+       data >1700         ; standard color
+       data >20
+
+       ; clear title patterns
+       bl   @vwm
+       data >004b         ; >800 + >60 * 8 for VDP
+       data >0000
+       data (>84 - >60) * 8
+
+       ; prepare scratchpad restoration
+prep:
+       mov  r10, r11          ; restore GPL r11
+       li   r0, saved_scratchpad
+       swpb r0
+       movb r0, *r8
+       swpb r0
+       movb r0, *r8
+
+       ; move jumper
+       li   r4, jump
+       li   r5, ws            ; mov to r0-r3 to clean up rest
+       mov  *r4+, *r5+        ; more efficient than loop
+       mov  *r4+, *r5+
+       mov  *r4+, *r5+
+       mov  *r4+, *r5+
+
+       ; prepare final jump
+       mov  r6, r7            ; jump to r7
+       li   r4, scratchpad
+       li   r5, saved_size
+       li   r8, vdprd
+       movb r9, r9            ; check upper byte for 0
+       jne  !
+       li   r7, >60           ; GROMs jump to ROM >60
+       jmp  ws
+!      andi r9, >000f
+       jeq  ws                ; ROM
+       jmp  ws + 6            ; special action, keep scratchpad
+
+       ; restore scratchpad and jump to image
+jump:
+       movb *r8, *r4+         ; restore scratchpad
+       dec  r5                ; registers have been set up
+       jne  $ - 4             ; jump: would be relative to >8300, not >83e0
+
+       ;limi  2               ; cannot do, we're in gplws!
+       b    *r7               ; start program
+
+vwm:
+       mov  *r11+, r0
+       movb r0, *r8
+       swpb r0
+       movb r0, *r8
+       mov  *r11+, r1
+       mov  *r11+, r2
+!      movb r1, @vdpwd
+       dec  r2
+       jne  -!
+       rt
+
+trampoline_end:
+       aorg
+
+       .ifge trampoline_end - trampoline, >c4
+       .error "trampoline too large"
+       .endif
+
+* library functions
+
+       copy "vsbw.a99"        ; part of xdt99 (lib/)
+       copy "vmbw.a99"
+       copy "vmbr.a99"
+       copy "vsbmw.a99"
+
+* constants
+
+c_ff:
+       byte >ff00
+
+title_text:
+       text '  `abcdefghijklmn  (C) 2017 RB  '
+       text '  opqrstuvwxyz{|}^', >7f, '  <, -/- .>'
+
+stripe_text:
+       text >90909191a0a0a1a1b0b0b1b1c0c0c1c1
+       text >d0d0b1b1d1d1e0e0e1e1f0f0f1f19090
+
+block_data:
+       text >ffffffffffffffff
+       text >0000000000000000
+
+color_data:
+       text >63631b1bcdcdf4f42828e5e59a9a
+
+       ; Jet Set Willy font
+font_data:
+       data >0000, >0000, >0000, >0000   ; >20
+       data >0010, >1010, >1000, >1000
+       data >0024, >2400, >0000, >0000
+       data >0024, >7e24, >247e, >2400
+       data >0008, >3e28, >3e0a, >3e08
+       data >0062, >6408, >1026, >4600
+       data >0010, >2810, >2a44, >3a00
+       data >0008, >1000, >0000, >0000
+       data >0004, >0808, >0808, >0400
+       data >0020, >1010, >1010, >2000
+       data >0000, >1408, >3e08, >1400
+       data >0000, >0808, >3e08, >0800
+       data >0000, >0000, >0008, >0810
+       data >0000, >0000, >3e00, >0000
+       data >0000, >0000, >0018, >1800
+       data >0000, >0204, >0810, >2000
+       data >003c, >464a, >5262, >3c00  ; >30
+       data >0018, >2808, >0808, >3e00
+       data >003c, >4202, >3c40, >7e00
+       data >003c, >420c, >0242, >3c00
+       data >0008, >1828, >487e, >0800
+       data >007e, >407c, >0242, >3c00
+       data >003c, >407c, >4242, >3c00
+       data >007e, >0204, >0810, >1000
+       data >003c, >423c, >4242, >3c00
+       data >003c, >4242, >3e02, >3c00
+       data >0000, >0010, >0000, >1000
+       data >0000, >1000, >0010, >1020
+       data >0000, >0408, >1008, >0400
+       data >0000, >003e, >003e, >0000
+       data >0000, >1008, >0408, >1000
+       data >003c, >4204, >0800, >0800
+       data >003c, >4a56, >5e40, >3c00  ; >40
+       data >003c, >4242, >7e42, >4200
+       data >007c, >427c, >4242, >7c00
+       data >003c, >4240, >4042, >3c00
+       data >0078, >4442, >4244, >7800
+       data >007e, >407c, >4040, >7e00
+       data >007e, >407c, >4040, >4000
+       data >003c, >4240, >4e42, >3c00
+       data >0042, >427e, >4242, >4200
+       data >003e, >0808, >0808, >3e00
+       data >0002, >0202, >4242, >3c00
+       data >0044, >4870, >4844, >4200
+       data >0040, >4040, >4040, >7e00
+       data >0042, >665a, >4242, >4200
+       data >0042, >6252, >4a46, >4200
+       data >003c, >4242, >4242, >3c00
+       data >007c, >4242, >7c40, >4000  ; >50
+       data >003c, >4242, >524a, >3c00
+       data >007c, >4242, >7c44, >4200
+       data >003c, >403c, >0242, >3c00
+       data >00fe, >1010, >1010, >1000
+       data >0042, >4242, >4242, >3c00
+       data >0042, >4242, >4224, >1800
+       data >0042, >4242, >425a, >2400
+       data >0042, >2418, >1824, >4200
+       data >0082, >4428, >1010, >1000
+       data >007e, >0408, >1020, >7e00
+       data >000e, >0808, >0808, >0e00
+       data >0000, >4020, >1008, >0400
+       data >0070, >1010, >1010, >7000
+
+       ; version indicator
+;      data >0010, >3854, >1010, >1000  ; >5e
+       text >0000009296a2a2c7  ; v1
+;      text >0000009791a7a4c7  ; v2
+;      text >0000009791a7a1c7  ; v3
+;      text >0000009595a7a1c1  ; v4
+       data >0000, >0000, >0000, >00ff  ; >5f
+
+       ; FinalGROM title
+       text >ffffffe0e0e0ffff  ; >60
+       text >eeeeee00000e0e0e
+       text >0000000000efffff
+       text >000000000083c7ef
+       text >0000000000eefefe
+       text >e3e7efeeeeeeeeee
+       text >f8fcfe000000000e
+       text >ffffffe0e0e0ffff
+       text >83c7efeeeeeeeece
+       text >f8fcfe0e0e0e0e0e
+       text >e0f1fbffffeeeee0
+       text >e0e0e1e1e1e1e1e0
+       text >7fffffc1c1c1ffff
+       text >078fdfdcdcdcdfcf
+       text >f0f8fc1c1c1cfcfc
+       text >ffe0e0e0e0e0e0e0
+       text >0e0e0e0e0e0e0e0e  ; >70
+       text >e0e0e0e0e0e0e0e0
+       text >eeeeeeeeeeefe7e3
+       text >0e0e0e0e0efefeee
+       text >eeeeeeeeeeefe7e3
+       text >0e0e0e0e0efefcf8
+       text >ffe3e1e0e0e0e0e0
+       text >8eceeeeeeeefe7e3
+       text >0e0e0e0e0efefcf8
+       text >e0e0e0e0e0e0e0e0
+       text >e0e0e0e1e1e1e0e0
+       text >7f0101c1c1ffff7f
+       text >c7c0c0dcdcdf8f07
+       text >fc1c1c1c1cfcf8f0
+       text >0000000000494900  ; >7e  "~" -> "..."
+       text >0000000000000000  ; >7f  extended version (planned)
+
+       ; animation patterns
+       text >0060600000060600  ; >80
+       text >000000c3c3000000
+       text >0006060000606000
+       text >1818000000001818  ; >83
+
+end_of_program
+
+*** constant program part ends here ***
+
+image_data:
+       equ  >6A00
+
+       ; browser items: 32 bytes per entry
+       ; total for 171 images:     >1560 bytes
+       ; -> available for program:  >AA0 bytes (max)
+
+       .ifge end_of_program, image_data
+       .error "program too large"
+       .endif
+
+       end

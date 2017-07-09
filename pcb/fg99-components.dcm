@@ -1,0 +1,42 @@
+EESchema-DOCLIB  Version 2.0
+#
+$CMP ATMEGA328P-MLF28
+D MLF 28, 32k Flash, 2kB SRAM, 1kB EEPROM
+K AVR 8bit Microcontroller MegaAVR
+F http://www.atmel.com/images/atmel-8271-8-bit-avr-microcontroller-atmega48a-48pa-88a-88pa-168a-168pa-328-328p_datasheet.pdf
+$ENDCMP
+#
+$CMP ATMEGA328P-TQFP32
+D TQFP32, 32k Flash, 2kB SRAM, 1kB EEPROM
+K AVR 8bit Microcontroller MegaAVR
+F http://www.atmel.com/images/atmel-8271-8-bit-avr-microcontroller-atmega48a-48pa-88a-88pa-168a-168pa-328-328p_datasheet.pdf
+$ENDCMP
+#
+$CMP CY62148
+D SRAM 512K x 8-bit, 525mil SOP32, 70ns
+K 8Mb SRAM (1M x 8-bit) High Speed CMOS Static RAM
+$ENDCMP
+#
+$CMP IS62WV5128
+D SRAM 512K x 8-bit, 55ns, sTSOP-32
+K 4Mb SRAM (512K x 8-bit) High Speed CMOS Static RAM
+$ENDCMP
+#
+$CMP NCP1117
+D Low-Drop Voltage regulator 3.3V
+$ENDCMP
+#
+$CMP SD_Slot
+D SD socket
+K SD
+$ENDCMP
+#
+$CMP XC95144XL-TQ100
+F xilinx/xc95144xl.pdf
+$ENDCMP
+#
+$CMP XC9572XL-TQ100
+F xilinx/xc9572.pdf
+$ENDCMP
+#
+#End Doc Library

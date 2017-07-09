@@ -1,0 +1,793 @@
+<style>
+body { font-family: 'Liberation Sans', Helvetica, Calibri, sans-serif; padding: 1em; margin: auto; max-width: 60em; background: #fefefe; }
+p, ul, ol, pre { margin: 1em 0; line-height: 1.3em; }
+pre { border: 1px solid #ccc; border-radius: 3px; overflow: auto; padding: 6px 10px; background-color: #eee; }
+code { border: 1px solid #ccc; border-radius: 3px; margin: 0 2px; padding: 0 2px; background-color: #eee; }
+pre > code { border: 0; margin: 0; padding: 0; }
+a, a:visited { color: #11a; text-decoration: none; }
+</style>
+<h1>FinalGROM 99</h1>
+
+<p>The <em>TI 99/4A FinalGROM Cartridge</em>, or FinalGROM 99 for short, is a
+cartridge for the TI 99/4A home computer that allows you to run ROM and GROM
+cartridge images from an SD card.  It succeeds the <a href="https://endlos99.github.io/flashrom99">FlashROM 99</a> released
+in 2016.</p>
+
+<p><img src="finalgrom99.jpg" alt="The FinalGROM 99 Cartridge" title="" /></p>
+
+<p>The FinalGROM 99 supports ROM images, GROM images, and mixed images of up to
+1 MB in size that use the write-to-ROM bank switching scheme.  The cartridge
+does not require the Peripheral Expansion Box and runs on both PAL and NTSC
+consoles, including modified consoles with an F18A.  It will also run on
+v2.2 consoles and enables those to run ROM-only programs.</p>
+
+<p>The cartridge offers some advanced modes that provide RAM and GRAM to
+programs.  It also allows a running program to reload another program from
+SD card or to dump its state to SD card.  All firmware of the FinalGROM 99
+can be updated by SD card.</p>
+
+<p>The FinalGROM 99 board has standard cartridge size and can be mounted in a
+TI 99 cartridge shell.</p>
+
+<p><img src="cartshell.jpg" alt="Mounted in Cartridge Shell" title="" /></p>
+
+<p>The FinalGROM 99 is released as Open Source Hardware under the
+<a href="http://www.ohwr.org/projects/cernohl/wiki">CERN OHL license</a> and the <a href="http://www.gnu.org/licenses/gpl.html">GNU GPL license</a>.  Both hardware design
+files and firmware sources are available on <a href="https://github.com/endlos99/finalgrom99">GitHub</a>.</p>
+
+<p>The project homepage with detailed instructions is located at <a href="https://endlos99.github.io/finalgrom99">GitHub</a>.</p>
+
+<h2>How to Start with the FinalGROM 99</h2>
+
+<p>Using the FinalGROM 99 is simple and doesn't require any special hardware or
+software.</p>
+
+<p>To begin, copy some cartridge dumps or other images files onto an SD or SDHC
+card.  You can create directories to organize your programs.  Switch off the
+TI 99 and plug in the FinalGROM 99, then insert the SD card into the
+FinalGROM 99.  Switch on the TI 99 and wait until the activity indicator on
+the FinalGROM 99 is no longer lit.</p>
+
+<p>Press any key to bring up the TI menu screen.  You should see the <code>FINALGROM
+99</code> entry.  Select it to start the image browser, where you can page through
+the list of available image entries with <code>,</code>, <code>.</code>, <code>SPACE</code>, and number keys.
+When you descend into a folder, the FinalGROM will reload its contents from
+the SD card.  To go back up to the parent folder, select the special folder
+<code>/ ..</code>.</p>
+
+<p><img src="selection.png" alt="Image selection" title="" /></p>
+
+<p>Select the image you want to run.  The screen will show a loader animation
+while the image loads.  Once the image has been loaded, it will start
+automatically.  The SD card is now no longer required and may be removed.</p>
+
+<p>If only one image is found on the SD card, it is loaded immediately without
+the need to select it first.  This method ensures maximum compatibility.
+Note that ROM images loaded as single-image SD card will not run on v2.2
+consoles!</p>
+
+<p>If you want to run a different program from the SD card, reset the TI 99 by
+pressing <code>FCTN-=</code> and then reset the FinalGROM 99 by pushing the reset
+button.  If you do not reset the FinalGROM 99, the TI menu will show only
+the previously selected image.  Alternatively, you can power cycle the
+console, which will reset both TI 99 and FinalGROM 99.</p>
+
+<h2>How to Prepare the FinalGROM 99</h2>
+
+<p>This section explains in greater detail how to prepare an SD card with
+images for use with the FinalGROM 99.</p>
+
+<h3>Images</h3>
+
+<p>A cartridge image consist of one or several binary files containing raw
+machine code that is loaded verbatim into the TI 99 cartridge memory.  Many
+programs are distributed as a single file images that typically end in
+<code>.bin</code>.</p>
+
+<p>An additional source for images are cartridge dumps for emulators.  The MESS
+emulator, for example, uses <code>.rpk</code> files, which are ordinary ZIP archives
+that contain the actual image files:</p>
+
+<pre><code>helloc.bin   &lt;-
+hellod.bin   &lt;-  the image files
+hellog.bin   &lt;-
+layout.xml
+meta-inf.xml
+</code></pre>
+
+<p>Note that newer versions of MESS also support ZIP files, but those cannot be
+used without conversion.  Classic 99 uses plain dump files that may be used
+as-is.</p>
+
+<p>Finally, many assemblers such as the <code>xas99</code> cross-assembler or the <code>xga99</code>
+GPL cross-assembler from the <a href="https://endlos99.github.io/xdt99">xdt99 tools</a> can generate ROM and GROM
+images.  Files generated for Editor/Assembler Option #5 cannot be used, but
+they may be converted for the FinalGROM 99 plus 32K RAM expansion.</p>
+
+<p>Images may contain ROM code and GROM code.  GROM code is the binary result
+of assembling the Graphics Programming Language (GPL) created by TI.  An
+image for the FinalGROM 99 may contain up to 1024 KB of ROM code only, or 40
+KB of GROM code plus 960 KB of ROM code.  You can also configure the
+cartridge to provide RAM and GRAM instead of ROM and GROM, respectively.</p>
+
+<p>Note that the FinalGROM 99 responds to all GROM bases, so it can support up
+to 64 KB of GROM, of which only the upper 40 KB (GROMs 3-7) are usable.</p>
+
+<p>The FinalGROM 99 uses "non-inverted" ROM images, which is the default for
+images until noted otherwise by the creator.  Images ending in <code>3</code> or <code>9</code>
+are usually inverted.  If you have an inverted ROM image, you can use the
+Python script <code>tools/invert.py</code> found in the <a href="https://github.com/endlos99/finalgrom99">repository</a> to de-invert
+the image.  If a single file ROM image crashes the TI 99, invert it and see
+if that works instead.</p>
+
+<p>Images may have more than one program entry to select.  The FinalGROM 99
+lists all entries of all images.  Most autostarting GROM images don't have
+any menu entries, so their filename followed by an asterisk <code>*</code> is shown
+instead.</p>
+
+<p>It is not recommended to use image collections for the FinalGROM 99 when the
+individual images are available.  An image collection increases the loading
+time for the selected image and requires an additional key press to start
+the program.</p>
+
+<h3>Filenames</h3>
+
+<p>Images are single files or multiple files with a common root name.  All
+filenames must end in <code>.bin</code>, and case is ignored.  Files with other
+extensions are ignored.</p>
+
+<p>A GROM-only image is always a single file whose filename ends in <code>G</code>:</p>
+
+<pre><code>hellog.bin
+</code></pre>
+
+<p><strong>IMPORTANT!</strong> The trailing <code>G</code> indicates that the file contents are GROM
+code, so ROM files must <em>not</em> end in <code>G</code>!</p>
+
+<p>A mixed ROM and GROM image is always split into up to 3 files, ending with
+<code>C</code> and <code>D</code> for the ROM files and <code>G</code> for the GROM file:</p>
+
+<pre><code>helloc.bin
+hellod.bin   (optional)
+hellog.bin
+</code></pre>
+
+<p>For mixed images, the ROM file must always end in <code>C</code>, but an optional
+second ROM bank ending in <code>D</code> may be present.  The GROM <code>G</code> file may be up
+to 40 KB in size, whereas the ROM <code>C</code> file may be up to 960 KB in size.  If
+a <code>D</code> file is given, it must be exactly 8 KB in size.</p>
+
+<p>Finally, ROM-only images may be a single file of almost arbitrary name or
+split files like in the mixed case.  When using a single file, the filename
+must <em>not</em> end in <code>D</code> or <code>G</code>.</p>
+
+<p>The split file format has been used for virtually all cartridge dumps for
+several decades now.</p>
+
+<p>The filesystem used on SD cards has an filename character limitation, which
+ignores case and shortens all filenames to fit into a <code>8.3</code> schema.  Thus,
+<code>hellogromg.bin</code> would be seen as <code>HELLOG~1.BIN</code>, and the trailing GROM
+indicator <code>G</code> would be missed.</p>
+
+<p><strong>IMPORTANT!</strong> When using split files, make sure that each filename has no
+more than 8 characters (excluding the extension)!  This is always true for
+legacy cartridge dumps.</p>
+
+<p><strong>HINT:</strong> A filename with more than 8 characters for a single file ROM-only
+image will never end incorrectly in <code>D</code> or <code>G</code>.</p>
+
+<p><em>In summary, don't rename cartridge dumps.  GROM filenames must not exceed 8
+characters AND must end in <code>G</code>.  ROM filename must have more than 8
+characters OR must not end in <code>D</code> or <code>G</code>.</em></p>
+
+<h3>SD Cards</h3>
+
+<p>The FinalGROM 99 supports both SD and SDHC cards, but not SDXC.  Cards must
+be formatted with the FAT16 or FAT32 filesystem.  FAT16 is the default for
+new SD cards of up to 2 GB, and FAT32 is the default for new SDHC cards of 4
+GB and up.</p>
+
+<p>Note that some cards seem to have a difficult personality.  For SD cards, it
+may help to use FAT32 instead of the FAT16 default.  If you absolutely
+cannot get a particular SD/SDHC card to work, just move on and use a
+different card.</p>
+
+<p>Image files can be dragged and dropped without modification onto an SD card.
+To organize your card, you may create folders and subfolders with names of
+up to 8 characters and without extension.  Each folder, including the root
+folder, may contain up to 171 images or folders.  (Strictly speaking, it is
+171 entries and folders, as one image can have more than one entry.)</p>
+
+<p>The startup speed of the FinalGROM 99 depends on the internal order of the
+image files on the SD card.  For optimal startup, erase your SD card and
+copy all image files and folders at once.  If you have a root folder of
+about a dozen folders, the startup time should be no more than a fraction of
+a second.</p>
+
+<h3>Tools</h3>
+
+<p>The <code>tools/</code> folder in the <a href="https://github.com/endlos99/finalgrom99">repository</a> contains some Python scripts that
+help you to manage your images.</p>
+
+<p>The <code>showcart.py</code> tool will list the menu entries for the image files given.</p>
+
+<p>Example:
+    showcart.py images/*.bin</p>
+
+<p>The <code>invert.py</code> tool will create an inverted version of the image given.
+This can be used to de-invert an image.</p>
+
+<p>Example:
+    invert.py image.bin</p>
+
+<p>The <code>pad.py</code> tool will pad a given file with zeros until it has the desired
+length (default is 8192, or 8K).</p>
+
+<p>Examples:
+    pad.py image.bin
+    pad.py largeimage.bin 65536</p>
+
+<p>The <code>mkea5cart.py</code> will convert E/A5 programs to cartridge ROM images.  The
+resulting image needs the 32K memory expansion to run.</p>
+
+<p>Example:
+    mkea5cart.py program1 theprogram.bin "THE PROGRAM"</p>
+
+<h2>How to Use the FinalGROM 99</h2>
+
+<p>This section details the operation of the FinalGROM 99 and explains all of
+its features.</p>
+
+<h3>Normal Operation</h3>
+
+<p>The FinalGROM 99 is always in one of two modes: <em>menu mode</em> or <em>image mode</em>.</p>
+
+<p>When powering up, or after pushing the FinalGROM 99 reset button (marked <code>FG
+RESET</code>), the FinalGROM 99 is in menu mode.  In this mode, the TI 99 menu
+screen shows the image browser with the list of all entries of all available
+images.  Entries followed by an asterisk show the filenames of autostarting
+GROM images without menu entries.</p>
+
+<p>Selecting an entry will load the selected image from the SD card and run it.
+Once the image is running, the FinalGROM 99 switches to image mode.</p>
+
+<p>In image mode, the FinalGROM 99 acts like a ROM or GROM cartridge containing
+the selected image only.  In this mode, the TI 99 menu screen shows the
+entries of the selected image.  Pressing <code>FCTN-=</code> will warm reset the
+console without affecting the currently stored image.  The only way to
+return to menu mode is to push the FinalGROM 99 reset button or power cycle
+the console.</p>
+
+<p>The SD card is scanned only once in menu mode.  If you swap SD cards, you
+need to push the FinalGROM 99 reset button to re-read the SD card.  Once in
+image mode, the SD card is no longer needed and may be removed until you
+want to run a different image.</p>
+
+<p>If only one image is found on the SD card at startup, the image is loaded
+immediately.  In this case the FinalGROM 99 skips menu mode and enters image
+mode directly.</p>
+
+<p>Programs running on the FinalGROM 99 may load and start other programs on
+the SD card.  During a reload, the cart remains in image mode.</p>
+
+<p>The activity indicator LED lights up whenever the FinalGROM 99 is busy
+reading the SD card.  During this time, the entire cartridge is "offline" so
+that the TI 99 cannot detect that a cartridge is plugged in.  If you enter
+the TI menu while the LED is still on, the <code>FINALGROM 99</code> entry will be
+missing.</p>
+
+<p>At any time, you can press the TI reset button (marked <code>TI RESET</code>) to reset
+the TI 99 console.  The current contents of the FinalGROM 99 will be
+preserved, and any image loading process will continue.</p>
+
+<p>To summarize, these simple rules of thumb will make sure that you run the
+FinalGROM 99 without issues:</p>
+
+<ul>
+<li>After inserting an SD card, push the FinalGROM 99 reset button or power
+cycle the console.</li>
+<li>Only push the FinalGROM 99 reset button when the TI 99 title screen is
+shown.</li>
+<li>Leave both TI 99 and SD card alone whenever the LED is lit and not
+blinking.</li>
+<li>Press the TI reset button when you want to restart the console with the
+same image.</li>
+</ul>
+
+<p>It is not possible to damage the FinalGROM 99 by incorrect menu or image
+operation.</p>
+
+<h3>Help Viewer</h3>
+
+<p>The FinalGROM 99 allows you to view image help texts stored on the SD card.</p>
+
+<p>To display a help text, press <code>FCTN-7</code> (AID) to enter help mode, and then
+press the letter of the image. The cart will briefly become offline before
+the help text viewer will start.</p>
+
+<p>In the help text viewer, you can press <code>E</code> or <code>X</code> to scroll the text by one
+line, or <code>,</code>, <code>B</code>, <code>.</code>, or <code>SPACE</code> to scroll by one page. Press <code>F</code> to find
+some text ignoring case, or <code>N</code> to find the next occurrence of the last
+find.</p>
+
+<p>To return to the FinalGROM 99 menu, press <code>Q</code> to quit the help viewer.</p>
+
+<p>If no help text is found, you'll return immediately to the FinalGROM
+menu.</p>
+
+<p>If you want to write some help text, create a <code>DIS/VAR 38</code> text file.  You
+can use both upper case and lower case letters, but should restrict yourself
+to plain ASCII.  Consecutive line breaks will be merged into one, so to
+insert an empty line, enter <code></code> followed by a newline.  Longer lines will be
+wrapper around without proper line breaking.</p>
+
+<p>The first line of your help file may contain a hexadecimal color code for
+the text</p>
+
+<pre><code>    &gt;1E
+</code></pre>
+
+<p>denoting foreground and background color.  Note that the line must start
+with <code>&gt;</code>, and only the last two hexadecimal characters are taken into
+account. If no color is given, the default color is used.</p>
+
+<p>The name of the help text file must end in <code>.TXT</code>. The filename of the
+<code>.TXT</code> file must match the main filename of your image.  For GROM and
+mixed images, this would be the <code>G</code> file, for ROM-only files this
+would be the <code>C</code> file or the actual filename for single-file images.</p>
+
+<h3>Advanced Modes</h3>
+
+<p>Most legacy cartridge images and homebrew programs will run as-is on the
+FinalGROM 99.  This includes games, educational programs, tools, and
+programming languages.</p>
+
+<p>But the FinalGROM 99 also offers two advanced modes that emulate advanced
+cartridge types that did not exist previously:</p>
+
+<ul>
+<li>[<code>R</code>] RAM Mode: provides up to 512 KB of ROM and 512 KB of RAM</li>
+<li>[<code>G</code>] GRAM Mode: turns occupied GROM into writable GRAM</li>
+<li>[<code>X</code>] RAM/GRAM Mode: provides both RAM and GRAM</li>
+</ul>
+
+<p>To enable one of these modes for a specific image, put character <code>R</code>, <code>G</code> or
+<code>X</code> at image offset 3, also known as "reserved" byte.  For legacy images,
+you may use a Hex Editor to modify the fourth byte.  For new images, your
+GPL header would start like</p>
+
+<pre><code>aorg &gt;6000
+data &gt;aa01
+byte &gt;00, 'R'  ; activate RAM mode
+</code></pre>
+
+<p>Note that each image type can use only certain modes, e.g., a ROM-only mode
+cannot use GRAM mode.</p>
+
+<p>These advanced modes are mostly targeted at developers (see "How to
+Develop"), but RAM Mode is also required for running the Mini Memory image.</p>
+
+<h3>Compatibility</h3>
+
+<p>In general, all cartridge dumps with a write-to-ROM banking scheme should
+work fine on the FinalGROM 99.  Some images converted from other formats,
+such as MBX or side carts, and many modern homebrew programs may also
+require a 32K RAM expansion.</p>
+
+<p>A few programs, however, don't expect to be started by something other than
+the TI 99 menu, or have difficulties to deal with the remnants of previously
+run programs left over by a warm reset.  In rare cases, this may lead to
+graphical glitches or other unexpected behavior.  Also, some GROM programs
+written specifically for the TI 99/4, may confuse the menu system of the TI
+99/4A.</p>
+
+<p>Please refer to the troubleshooting section for a list of programs with
+known issues.</p>
+
+<p>If you find additional images that don't work as intended on the FinalGROM
+99, first check their filenames (see section "Filenames"), and then please
+send a note to the developer at <a href="&#x6D;&#97;i&#x6C;&#116;&#x6F;:&#x72;&#64;&#x30;&#x78;&#48;&#x31;&#x2E;&#x64;&#x65;">&#x72;&#64;&#x30;&#x78;&#48;&#x31;&#x2E;&#x64;&#x65;</a>.  Compatibility may be improved
+with a firmware update.</p>
+
+<h2>How to Develop for the FinalGROM 99</h2>
+
+<p>In normal mode, the FinalGROM acts as a 1024 KB ROM cartridge with 128 banks
+of 8 KB each.  To switch to a specific bank, a program writes to cartridge
+address <code>&gt;60xx</code>, where <code>xx</code> is the bank index times two.  Note that unused
+switch bits are ignored, so for a 4-bank program, addresses <code>&gt;6006</code> and
+<code>&gt;7afe</code> are equivalent.</p>
+
+<p>For GROM or mixed images, the upper 8 banks are reserved for GROM code.  The
+system GROMs 0, 1, and 2 cannot be used, though, so GROM images are loaded
+into GROMs 3 and up.  Bank switching for the remaining 960 KB of ROM works
+as above.</p>
+
+<p>Note that the FinalGROM 99 always starts programs with bank 0 selected, so
+you don't need to replicate the GPL header in all banks unless you want
+compatibility with other carts.</p>
+
+<h3>Advanced Modes</h3>
+
+<p>Two advanced modes can be enabled by setting the fourth byte in the main
+image file (see "How to Use").</p>
+
+<p>In RAM Mode, each 8 KB bank is split into a ROM half-bank <code>&gt;6000-&gt;6fff</code> and
+a RAM half-bank <code>&gt;7000-7fff</code>.  The RAM may be freely written to, but it is
+not battery-backed and will be lost on power down or cart reset.  ROM
+half-banks are switched by writing to <code>&gt;60xx</code>, and RAM half-banks are
+switched independently by writing to <code>&gt;68xx</code>.  Intermediate bits are again
+ignored.  Note that writing to <code>&gt;7xxx</code> will not switch banks but update the
+RAM at that location.</p>
+
+<p>You can preset the RAM by putting the desired values in the upper half banks
+of your image.  Only occupied banks contain RAM, so if you load a 4 bank
+image, you'll have 4 * 4 KB = 16 KB of RAM available.</p>
+
+<p>In GRAM Mode, all occupied GROM banks will be GRAM banks.  GPL doesn't
+support GRAM except for the <code>MOVE</code> instruction, so</p>
+
+<pre><code>move 10, g@data, g@&gt;7800
+</code></pre>
+
+<p>and alike would be the only way to write to GRAM.</p>
+
+<h3>Reloading</h3>
+
+<p>Although 1024 KB is plenty of space for a TI 99 program, the FinalGROM 99
+enables programs to reload and start other programs from the SD card.  Any
+program type may load any program type.</p>
+
+<p>To initiate the reload of a new program, the sequence <code>&gt;99</code>, "OKFG99", <code>&gt;99</code>
+followed by the file data must be sent.  Since the new image will overwrite
+the running image, the reload code must be relocated to RAM before it can be
+run.  To check if the new image has been loaded, the program must watch
+addresses <code>&gt;6000-&gt;6200</code> for a non-zero word to appear.  (For a reloaded ROM
+program, watching <code>&gt;6000</code> suffices.)</p>
+
+<p>The <a href="https://github.com/endlos99/finalgrom99">repository</a> contains sample code <code>lib/reload_example.a99</code> and
+<code>lib/gload_example.gpl</code> that may serve developers as a blueprint for
+reloading.  The syntax requires the <a href="https://endlos99.github.io/xdt99">xas99 or xga99 assemblers</a>, but the
+code is easily adapted to other assemblers as well.</p>
+
+<h3>Dumping</h3>
+
+<p>To save the progress or high scores of games or to persist personal tool
+preferences, the FinalGROM 99 supports the dumping of single-file ROM
+images.  To make sense, such an image should run in RAM or GRAM mode, so
+that its RAM banks/GRAM containing updated data are saved.</p>
+
+<p>To initiate the dump, the sequence <code>&gt;99</code>, "OKFG99", <code>&gt;99</code> followed by the
+file data and dump code <code>&gt;ff03</code> must be sent.  During the dump, the
+cartridge logic needs exclusive access to the SRAM, so dumping can only be
+initiated from scratchpad RAM or expansion RAM.  To detect when the dump has
+completed, the program must watch address <code>&gt;6000</code> (or more) for a non-zero
+word to appear.  Note that loading a GROM-only programs will always set ROM
+address <code>&gt;6000</code> to value <code>&gt;9999</code>.</p>
+
+<p>Dumping saves the entire image in RAM/GRAM and overwrites the original image
+file on the SD card.  For technical reasons, the dump cannot be written to a
+new non-existing file, so keep a copy of the original image around.</p>
+
+<p>The <a href="https://github.com/endlos99/finalgrom99">repository</a> contains sample code <code>lib/dump_example.a99</code> and
+<code>lib/gdump_example.gpl</code> that may serve developers as a blueprint for
+dumping.  The syntax requires the <a href="https://endlos99.github.io/xdt99">xas99 and xga99 assemblers</a>, but the
+code is easily adapted to other assemblers as well.</p>
+
+<h2>How the FinalGROM 99 Works</h2>
+
+<p>The FinalGROM 99 uses a 1M x 8 SRAM chip to store cartridge images of up to
+1 MB.  The TI 99 addresses the SRAM just like it would address a cartridge
+ROM or GROM chip.  The 1 MB is divided into 128 banks of 8 KB each.  GROMs
+occupy the upper 8 banks, although only 5 are used.  Each GROM can hold up
+to 8 KB.</p>
+
+<p>The XC95144XL CPLD at the heart of the FinalGROM 99 implements all of the
+cartridge logic.  It manages access to the SRAM, isolates the cart from the
+TI bus when needed, handles the storage of images, emulates the GROMs,
+switches banks, and controls write access.  Note that the TI bus is not
+connected to the SRAM, instead the CPLD will act as a scheduler for incoming
+bus requests.</p>
+
+<p>The ATmega 328 microcontroller reads the SD card and sends the generated
+image browser and the selected image to the CPLD for storage in the SRAM.
+The microcontroller also contains an XSVF player that can update the
+programming of the CPLD.  Similarly, its bootloader can update the
+microcontroller itself.</p>
+
+<p>The image browser is generated by the microcontroller that analyzes all
+images stored on the SD card to extract their TI menu entries and start
+addresses.  For GROM images, this may involve a lot of work, as the menu or
+autostarting information may be located high up in the GROMs.</p>
+
+<p>The image selection in the image browser is recorded by the CPLD as a
+sequence of writes to <code>&gt;7xxx</code> on the bus, which is passed to the
+microcontroller for processing.  Currently, 12 bytes of data are
+transferred, containing filename, action, and image type of the selected
+image or folder.</p>
+
+<p>When the image loads, the TI 99 keeps reading ROM addresses <code>&gt;6000-&gt;6200</code> in
+a loop.  A complete run of zero values indicates that the cart is still
+offline, but a single non-zero value, such as the GPL header, signals that
+the cart is back online.  This implies that the loading has completed, and
+the TI will branch to the saved start address of the image.  GROM-only
+images write to bogus bytes to ROM, and mixed images will hopefully contain
+some non-zero value in the first 512 bytes.</p>
+
+<p>Before the selected image runs, the FinalGROM 99 will clear the screen and
+restore both scratchpad RAM, color palette, and some character patterns.
+The FinalGROM 99 also ensures that all programs start with bank 0 selected.</p>
+
+<p>The microcontroller uses a modified version of the <a href="http://elm-chan.org/fsw/ff/00index_p.html">Petit FatFs</a> library
+to make sense of the FAT16/FAT32 filesystems used by SD cards.  It also uses
+a port of the Xilinx XSVF player described in <a href="http://www.xilinx.com/support/documentation/application_notes/xapp058.pdf">Application Note 058</a>.</p>
+
+<h2>How to Update the FinalGROM 99</h2>
+
+<p>In the future, updates to the FinalGROM 99 firmware may become necessary to
+add new features or to improve compatibility.  These updates will be
+distributed as binary files that can be applied via SD card.  No special
+equipment is required to update the FinalGROM 99.</p>
+
+<p>Files ending in <code>.AVR</code> will update the microcontroller.  Copy such a file as
+<code>UPDATE.AVR</code> to an SD card and insert it into the FinalGROM 99.  Plug the
+FinalGROM 99 into the TI 99 and turn on the console.  The update will start
+automatically, and is complete after a few seconds when the LED turns off.
+Make sure to remove the SD card first before you reset the FinalGROM 99 or
+power-cycle the console!  (Otherwise, the update will be applied again.)</p>
+
+<p><strong>IMPORTANT!</strong> Do not turn off the the TI 99 while the update is in
+progress!  You may brick your FinalGROM 99, which will require an AVR
+programmer to debrick again.</p>
+
+<p>Files ending in <code>.PLD</code> will update the main logic inside the CPLD.  Copy
+such a file as <code>UPDATE.PLD</code> to an SD card and follow the procedure above.
+The update will take about 15 seconds.  Note that the TI may crash during
+the update, but this does no harm.  Do not forget to remove the SD card
+before you power cycle or reset the FinalGROM 99!</p>
+
+<p>A failed <code>.PLD</code> update may leave your FinalGROM 99 not working, but it
+cannot brick your cart.  In case of a failure, make sure the update file is
+correct, and simply retry your update.  Note that you do not need a working
+TI 99, but just its power.</p>
+
+<p>Any errors during the update will be indicated by a blinking LED.  The blink
+pattern tells you what kind of error occurred:</p>
+
+<pre><code>(o)........(o).........(o)........(o)........(o)........(o) ...
+</code></pre>
+
+<p>indicates a bad SD card reader, a bad SD card, or the wrong filesystem,</p>
+
+<pre><code>(o).(o)........(o).(o).........(o).(o)........(o).(o)...... ...
+</code></pre>
+
+<p>indicates a missing or corrupt update file.</p>
+
+<p>A higher number of blips indicates an error of the XSFV player while reading
+the <code>UPDATE.PLD</code> file, which should not happen.</p>
+
+<h2>Troubleshooting the FinalGROM 99</h2>
+
+<p>If you're in doubt if your FinalGROM 99 is working correctly, run the
+cartridge tests in folder <code>images/tests/</code> in the <a href="https://github.com/endlos99/finalgrom99">repository</a>.  All tests
+run endlessly and will show errors as <code>ERROR xxxx yyyy</code> at the bottom of the
+screen.  The hex value <code>xxxx</code> is the expected word and <code>yyyy</code> is the actual
+word read.</p>
+
+<h4>The LED blinks.</h4>
+
+<p>If the LED starts blinking, the FinalGROM 99 could not read some part of the
+SD card:</p>
+
+<pre><code>(o)........(o).........(o)........(o)........(o)........(o) ...
+</code></pre>
+
+<p>indicates a bad SD card reader, a bad SD card, or the wrong filesystem,</p>
+
+<pre><code>(o).(o)........(o).(o).........(o).(o)........(o).(o)...... ...
+</code></pre>
+
+<p>indicates the root folder cannot be read, or the image cannot be dumped,</p>
+
+<pre><code>(o).(o).(o)........(o).(o).(o).........(o).(o).(o)......... ...
+</code></pre>
+
+<p>indicates a corrupt image, a corrupt help file, or an error during dumping.</p>
+
+<p>In case of one blip, try re-formatting your SD card using FAT32, or try a
+different card.</p>
+
+<h4>The TI 99 title screen won't show.</h4>
+
+<p>The LED lights for some time, but the TI title screen won't show.</p>
+
+<p>The FinalGROM 99 is active, but it interferes with the console GROMs.</p>
+
+<p>Check if the CPLD is damaged, or if there are any solder bridges or other
+kind of unwanted contacts.  If you just updated your CPLD, retry the
+procedure and note if there were any errors.</p>
+
+<h4>There is no FinalGROM 99 entry.</h4>
+
+<p>The TI 99 starts normally, but the menu shows only TI BASIC.</p>
+
+<p>If the LED doesn't turn on at least briefly when powering up or pushing
+reset, some contacts on the card may be bad.</p>
+
+<p>Make sure that you won't enter the TI menu while the LED is still lit.
+Check that your SD card contains at least one valid image file, ending in
+<code>.bin</code> or <code>.BIN</code>.  Also review the filename requirements in "How to
+Prepare".</p>
+
+<h4>Some menu entry is missing.</h4>
+
+<p>The menu entry of some image, in particular some educational title, is
+missing.</p>
+
+<p>Some programs start automatically and thus don't have a menu with an entry
+that the FinalGROM 99 could show.  Instead, the cart lists the filename
+followed by an asterisk.</p>
+
+<p>Check the filename of your image, and look for that filename in the image
+browser.</p>
+
+<h4>The image browser shows weird entries.</h4>
+
+<p>The image browser shows meaningless entries such as <code>DEUTSCH</code> or <code>ITALIANO</code>.</p>
+
+<p>Some GROM cartridges don't show their own name in the TI menu screen, but
+only offer different language options.</p>
+
+<p>Select your language to see which program this is.  To show more friendly
+entries in the future, patch the image and replace the entry names with more
+meaningful ones.  Alternatively, create a new folder with the image's
+abbreviated real name and put the image in there.</p>
+
+<p>If you don't know which image is producing these rogue entries, you can use
+the <code>tools/showcart.py</code> script in the <a href="https://github.com/endlos99/finalgrom99">repository</a> like this:</p>
+
+<pre><code>$ showcart.py phm3112C.BIN phm3112G.BIN
+</code></pre>
+
+<p>to get the list of entries for the specified list of programs:</p>
+
+<pre><code>phm3112C.BIN: **MISSING &gt;AA**
+phm3112G.BIN: PARSEC
+</code></pre>
+
+<h4>The image browser crashes.</h4>
+
+<p>The images browser shows weird characters and does no longer react to key
+presses.</p>
+
+<p>The connector of the FinalGROM 99 may be dirty/greasy, or the cart isn't
+inserted properly.</p>
+
+<p>Please make sure that the cart is inserted firmly and the connector is
+clean.  If necessary, remove the little sponge in the cart connector that
+may cause the greasiness of the cart.</p>
+
+<h4>Some program crashes.</h4>
+
+<p>Running some particular program from the browser crashes, either right away
+or after using the program for some time.</p>
+
+<p>You may run an inverted image, a badly named image, an image with an
+incompatible bank switch scheme, an old program for the TI 99/4, or a
+"fragile" cartridge program.</p>
+
+<p>To fix an inverted image, use the <code>tools/invert.py</code> script.  Note that image
+files with 8K only cannot be inverted.</p>
+
+<p>Make sure that the filename is correct.  GROM files must not exceed 8 chars,
+and end in <code>G</code>.  Single ROM files must not end in <code>D</code> or <code>G</code>, or exceed 8
+chars.  For example, <code>STATISTIKG.BIN</code> is too long for a GROM, and
+<code>DIGDUG.BIN</code> ends in <code>G</code>, but is a ROM.</p>
+
+<p>A "fragile" program is a program that makes certain assumptions about the
+state of scratchpad RAM and VDP RAM when it starts.  Try loading the program
+directly to RAM by copying this image file as the only file on an SD card.
+This will provide the exact environment the program expects.</p>
+
+<p>If this doesn't help, the image may be incompatible.  Please send a note to
+the developer at <a href="&#109;&#x61;&#x69;&#108;&#116;&#x6F;:&#114;&#64;0&#x78;&#48;&#x31;.&#x64;&#101;">&#114;&#64;0&#x78;&#48;&#x31;.&#x64;&#101;</a> for further analysis.</p>
+
+<h4>Some program doesn't work properly.</h4>
+
+<p>Some functionality of the program doesn't work as expected.</p>
+
+<p>Images for the TI 99/4 (not A) have a different menu structure that may
+confuse the FinalGROM 99.  Video Chess is one such program.</p>
+
+<p>Some programs don't expect to be started by another program or to find the
+remnants of previously run programs.  This may lead to graphical glitches or
+other unexpected behavior.</p>
+
+<p>Try restarting the program by pressing <code>FCTN-=</code> and selecting it from the
+menu again to eliminate most issues.  Alternatively, put the image as the
+only image on the SD card so that it is loaded directly.</p>
+
+<p>If this doesn't help, please send a note to the developer at <a href="ma&#x69;&#x6C;&#x74;o:&#x72;&#64;&#x30;&#x78;&#x30;&#49;&#46;&#x64;&#101;">&#x72;&#64;&#x30;&#x78;&#x30;&#49;&#46;&#x64;&#101;</a> for
+further analysis.</p>
+
+<h3>RAM/GRAM cannot be written to.</h3>
+
+<p>The program cannot write to the RAM banks or the GRAM banks.</p>
+
+<p>Make sure that the forth byte of the image is <code>R</code>, <code>G</code>, or <code>X</code>.  For
+GROM-only images, the <code>G</code> file must contain <code>G</code>.  For ROM-only images, the
+<code>C</code> file or the single file must contain <code>R</code>.  For mixed images, the <code>G</code>
+file must contain <code>G</code>, <code>R</code>, or <code>X</code>.</p>
+
+<h4>Mini Memory won't work.</h4>
+
+<p>The Mini Memory won't save assembly programs.</p>
+
+<p>The Mini Memory is a special cartridge that features some RAM, which is not
+present in other cartridges.</p>
+
+<p>Create a <code>.CFG</code> file that contains only the letter <code>R</code>.  This will enable
+RAM Mode required for the Mini Memory.  (For details, see section "Advanced
+Modes".)</p>
+
+<p>Note however, that the FinalGROM 99 is not battery-backed, so any RAM
+contents will be discarded once the power is cut or a different image is
+loaded.</p>
+
+<h4>Programs with known issues.</h4>
+
+<p>These programs are know to have minor or major flaws when run on the
+FinalGROM 99:</p>
+
+<ul>
+<li>As of this writing, no issues or glitches are known.</li>
+</ul>
+
+<p>Note that this list refers to particular images.  There might be alternative
+images of the same programs that work fine with the FinalGROM 99.</p>
+
+<p>Please report problems to the developer at <a href="&#109;&#x61;&#x69;&#x6C;&#x74;&#x6F;:&#x72;&#64;&#48;&#x78;0&#x31;&#46;d&#101;">&#x72;&#64;&#48;&#x78;0&#x31;&#46;d&#101;</a> so that they may be
+fixed with a future update.</p>
+
+<h2>Where to Get the FinalGROM 99</h2>
+
+<p>The <a href="https://github.com/endlos99/finalgrom99">GitHub repository</a> contains all hardware design files and software
+sources required to build the FinalGROM 99 by yourself.</p>
+
+<p>Since the technology used is somewhat complex for a hobby project, you can
+get fully assembled FinalGROM 99 cartridges.  Note that this offer <em>doesn't</em>
+include a cartridge shell.</p>
+
+<p>Please fill out and include this snippet in your inquiry:</p>
+
+<pre><code>Amount
+[    ] assembled FinalGROM 99 board, buttons and LED soldered    €45
+[    ] assembled FinalGROM 99 board, without buttons and LED     €45
+[    ] FinalGROM 99 laminated cartridge label                    € 1
+       world-wide shipping for up to two carts                   €10
+</code></pre>
+
+<p>Get the first option if you plan to use your FinalGROM 99 without shell.
+The other option is intended for FinalGROM 99s in cartridge shells so that
+you can mount the buttons and LEDs of your choice on the shell.</p>
+
+<p>Please contact the developer at <a href="&#x6D;&#x61;&#x69;&#108;t&#x6F;:&#114;&#64;&#48;&#120;&#48;&#x31;&#46;&#x64;&#x65;">&#114;&#64;&#48;&#120;&#48;&#x31;&#46;&#x64;&#x65;</a> for further information.</p>
+
+<h2>About the Project</h2>
+
+<p>The TI 99/4A FinalGROM Cartridge is Open Source Hardware released under the
+<a href="http://www.ohwr.org/projects/cernohl/wiki">CERN OHL license</a>, in the hope that TI 99 enthusiasts may find it
+useful.  Software components are released under the <a href="http://www.gnu.org/licenses/gpl.html">GNU GPL license</a>.</p>
+
+<p>The hardware was designed with the open source electronics design automation
+suite <a href="http://kicad-pcb.org">KiCad</a>.  The microcontroller code uses a modified version of the
+<a href="http://elm-chan.org/fsw/ff/00index_p.html">Petit FatFs</a> library.</p>
+
+<p>Heartfelt thanks go to Erik Spiehl (speccery) for helping me analyze an
+electrical problem on the development boards, and to Jim Brain (Brain) for
+showing me how to replace the Arduino shields by proper SD sockets.</p>
+
+<p>Contributions to both hardware and software are welcome.  Please email
+feedback, support questions, inquiries for parts, and bug reports to the
+developer at <a href="m&#x61;&#105;&#x6C;&#x74;&#x6F;:&#114;&#64;&#x30;&#x78;&#x30;&#x31;&#46;&#100;&#101;">&#114;&#64;&#x30;&#x78;&#x30;&#x31;&#46;&#100;&#101;</a>.  Discussions about the FinalGROM 99 happen over at
+<a href="http://atariage.com/forums/topic/260917-the-finalgrom-99">AtariAge</a>.</p>

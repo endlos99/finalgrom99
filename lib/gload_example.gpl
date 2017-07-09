@@ -1,0 +1,41 @@
+* reload GROM example code
+
+
+       ; your main program here
+       ; ...
+
+start_addr:
+       equ   >6xxx
+pass_start:
+       equ   >8300            ; pass start_addr from GPL to assembly
+reloc_addr:
+       equ   >8302            ; adjust XML arg for other addresses
+
+       move  trampoline_end - trampoline, g@trampoline, @reloc_addr
+       dst   start_addr, @pass_start
+       xml   >f1              ; look in >8302 to find branch address >8304
+       ; won't return
+
+prog1:
+       text 'PROGRAM #1'
+
+       ; send filename to FinalGROM 99
+trampoline:
+       copy "gload_example_asm.dat"  ; assemble with "xas99.py -t -R"
+
+reload_seq:
+       ; send this to reload
+       text >99, 'OKFG99', >99
+       text 'RELOAD2G'        ; file to load (8 chars, pad with \00)
+       data >0000             ; >0000 for GROM/mixed, >FF00 for ROM
+       data >0000             ; start address ignored
+
+       ; NOTE: You must use shortened 8.3 upper-case filenames here.
+       ;       For example, to reload "mylongfile.bin", use "MYLONG~1.BIN".
+       ;       If there are multiple files with prefix "MYLONG" in the
+       ;       folder, you may have to replace the suffix "~1" by "~2",
+       ;       "~3", ... to select the correct file.
+
+trampoline_end
+
+       end

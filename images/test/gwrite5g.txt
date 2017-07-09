@@ -1,0 +1,32 @@
+GRAM WRITE TEST
+===============
+ 
+This test is used to check the basic
+functionality of the FinalGROM 99.
+ 
+This test writes and checks half of
+the GRAM bytes from each GROM and
+reports any bad writes.
+ 
+If a given GROM can write correctly to
+the upper half of each GRAM, the
+program displays the GROM number
+followed by "OK".
+ 
+In case of a write or read error, only
+the GROM number is displayed.  An
+additional error message at the bottom
+of the screen remains there until the
+test is terminated.
+ 
+Each GROM writes to GRAM addresses
+>7xxx, >9xxx, >Bxxx, >Dxxx, >Fxxx to
+increment their contents and to check
+if the increment can be read back.
+  
+This test runs in a loop.  You may run
+it unsupervised for prolonged periods
+to see if the FinalGROM 99 runs
+stably.  Upon return, the bottom of
+the screen will tell you if there were
+any errors.

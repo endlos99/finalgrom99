@@ -1,0 +1,34 @@
+RAM WRITE TEST
+==============
+ 
+This test is used to check the basic
+functionality of the FinalGROM 99.
+ 
+This test will write and check each
+byte in every RAM bank and report any
+bad writes.
+ 
+If a given ROM bank can write to all
+RAM banks successfully, the program
+displays the ROM bank number followed
+by "OK".
+ 
+In case of a write or read error, only
+the bank number is displayed. An
+additional message at the bottom of
+the screen shows the read word and the
+expected word.  This message remains
+on the screen until another error
+overwrites it.
+ 
+Each ROM bank switches through all RAM
+banks to increment their contents and
+to check if the increment can be read
+back.
+ 
+This test runs in a loop.  You may run
+it unsupervised for prolonged periods
+to see if the FinalGROM 99 runs
+stably.  Upon return, the bottom of
+the screen will tell you if there were
+any errors.

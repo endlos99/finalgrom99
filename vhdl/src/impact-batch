@@ -1,0 +1,8 @@
+#!/bin/sh
+
+if [ -z "$1" ]; then echo "usage: $0 <batch-file>"; exit 1; fi
+
+export LD_PRELOAD=/usr/local/lib/libusb-driver.so
+export XIL_IMPACT_USE_LIBUSB=0
+
+/opt/xilinx/ISE/bin/lin64/impact -batch "$1"

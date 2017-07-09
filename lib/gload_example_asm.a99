@@ -1,0 +1,42 @@
+* GROM reload assembly example code
+
+
+pass_start:
+       equ  >8300
+
+       aorg >8302             ; XMLTAB >f1
+
+       data >8304             ; start of program
+
+       limi 0
+
+       ; send reload request to FinalGROM 99
+reload:
+       li   r0, reload_seq    ; this is the only non-relocatable instruction
+       li   r2, 20            ; sequence length: prefix (8) + sender (12)
+send:
+       clr  @>6000            ; signal new byte
+       li   r1, >0038         ; >7000 >> 9
+       movb *r0+, r1
+       src  r1, 7             ; >7000 + (byte << 1)
+       clr  *r1               ; send byte
+
+       dec  r2
+       jne  send
+
+       clr  @>6000            ; done
+
+       ; wait for image to be loaded
+       src  r0, 15            ; burn some time
+wait:
+       mov  @>6000, r0        ; check >6000
+       jeq  wait
+
+       ; image has been loaded
+done:
+       ;rt                    ; don't return, calling program no longer availb.
+       mov  @pass_start, r6   ; target GROM address in r6
+       b    @>60              ; back to GPL
+
+reload_seq:
+       end

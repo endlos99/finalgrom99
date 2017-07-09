@@ -1,0 +1,36 @@
+GROM ADDRESS TEST
+=================
+ 
+This test is used to check the basic
+functionality of the FinalGROM 99.
+ 
+The test will read and check most GROM
+addresses, in each GROMs, and report
+any bad reads.
+ 
+If there are no errors in a given
+GROM, the program displays "OK" after
+the GROM number.
+ 
+In case of a read error, "BAD" is
+shown after the GROM number, and an
+additional message at the bottom of
+the screen is shown.  The message
+remains on the screen until the
+program is terminated.
+ 
+The entire GROM contains unique, known
+words against the test program can
+compare.  Some addresses are used by
+the test program itself, so bad reads
+may also crash the TI 99.
+ 
+This test runs in a loop.  You may run
+it unsupervised for prolonged periods
+to see if the FinalGROM 99 runs
+stably.  Upon return, the bottom of
+the screen will tell you if there were
+any errors.
+ 
+(In case of crashes, note that it may
+have been the TI 99 that has failed.)

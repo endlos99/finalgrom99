@@ -1,0 +1,19 @@
+GROM DUMP TEST
+==============
+ 
+This test is used to check the basic
+functionality of the FinalGROM 99.
+ 
+This single-GROM test shows the sum of
+all words in GRAM on screen.  The
+program then increases each word by 1
+and dumps itself, including the
+increased GRAM words, onto the SD
+card.
+ 
+After the dump has completed, check
+the dump test image on the SD card to
+see the increased words.  Or, reset
+and restart the dump test, which
+should show the previous sum increased
+by >800.

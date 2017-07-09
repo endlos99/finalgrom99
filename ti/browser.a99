@@ -1,0 +1,264 @@
+**********************************************************************
+*  FinalGROM 99 Browser
+*  Copyright (c) 2017 Ralph Benzinger <r@0x01.de>
+**********************************************************************
+
+       ref  scan
+
+keymode:
+       equ  >8374
+keycode:
+       equ  >8375
+gplst:
+       equ  >837c
+
+       ; constants
+items_per_page:
+       equ  19                ; max 19*9 items enforced by menu generator
+
+       ; variables (kept through help viewer and not destroyed by SCAN)
+total_items:
+       equ  >83d0
+paged_item:
+       equ  >83d2
+page_status:
+       equ  >83da             ; MSB: curr page, LSB: max page
+more_items:
+       equ  >83dc
+help_mode:
+       equ  >83de             ; start program or show help text?
+
+       ; variables (discarded)
+sorted_page_items:
+       equ  >8300             ; 1 byte per page item
+help_send_data:
+       equ  >83c4             ; 12 + 2 bytes to be sent
+
+       ; show sorting message
+       li   r0, 5 * 32 + 5
+       li   r1, wait_text
+       li   r2, 11
+       bl   @vmbw
+
+       ; sort images
+sort_images:
+       copy "sort.a99"
+       mov  r3, @total_items  ; returned r3 = item count
+       jne  prep_menu
+
+       ; no images found
+       li   r0, 5 * 32 + 3
+       li   r1, none_text
+       li   r2, 15
+       bl   @vmbw
+       limi 2
+       jmp  $                 ; stop execution
+
+       ; prepare menu
+prep_menu:
+       mov  @help_mode, r0
+       jeq  !
+       clr  @help_mode        ; help mode active: returning from help viewer
+       jmp  show_list
+!      clr  @paged_item
+       clr  r0
+       li   r1, items_per_page - 1
+       a    r3, r1            ; round up in division
+       li   r2, items_per_page
+       div  r2, r0
+       ai   r0, >3130
+       mov  r0, @page_status  ; initialize to >3030
+
+       ; show menu
+show_list:
+       li   r5, 5 * 32 + 2   ; first screen position
+       li   r6, image_data + 12
+       li   r7, items_per_page
+
+       ; load sorted item indices from VDP RAM
+       li   r0, sort_result
+       a    @paged_item, r0
+       li   r1, sorted_page_items
+       li   r2, items_per_page
+       bl   @vmbr
+
+       li   r8, sorted_page_items
+next_item:
+       clr  r4
+       movb *r8+, r4
+       cb   @c_eol, r4
+       jne  !
+
+       ; no more items, clear remaining screen
+       mov  r7, r2
+       li   r0, 24 * 32
+       li   r1, '  '
+       sla  r2, 5
+       s    r2, r0
+       bl   @vsbmw
+       jmp  screen_done
+
+       ; write entry
+!      srl  r4, 3             ; >> 8, * 32
+       a    r6, r4            ; image name addr
+
+       mov  r5, r0            ; write index key
+       li   r1, ' T'
+       s    r7, r1
+       swpb r1
+       bl   @vsbw
+
+       inc  r5
+       mov  r5, r0
+       li   r1, '. '
+       bl   @vsbw
+
+       inct r5                ; write image name
+       mov  r5, r0
+       mov  r4, r1
+       li   r2, 20
+       bl   @vmbw
+
+       ai   r5, 29
+       dec  r7
+       jne  next_item
+
+       ; show page status
+screen_done:
+       li   r0, 32 + 24
+       mov  @page_status, r1
+       bl   @vsbw
+       inct r0
+       swpb r1
+       bl   @vsbw
+
+       ; help mode?
+screen_help:
+       li   r1, '  '
+       mov  @help_mode, r0
+       jeq  !
+       li   r1, '? '
+!      li   r0, >02fe
+       bl   @vsbw
+
+       ; wait for input
+input:
+       mov  r7, @more_items
+       li   r0, >9e7e
+       mov  r0, @>8372        ; restore stack pointers for SCAN
+       li   r0, >05ff
+       mov  r0, @keymode
+wait_key:
+       clr  r0
+       mov  r0, @gplst
+       bl   @scan
+       li   r0, ' '
+       movb @gplst, r0
+       coc  @c_newkey, r0     ; new key pressed?
+       jne  wait_key
+
+       ; check key pressed
+       movb @keycode, r0
+       ci   r0, >0520         ; FCTN-=
+       jne  !
+       clr  @>83c4            ; no interrupt routine
+       clr  @>837a            ; fix automotion sprites
+       blwp @0                ; reset
+!      ci   r0, >0120         ; AID
+       jne  !
+       inv  @help_mode        ; toggle help mode
+       jmp  screen_help
+!      ci   r0, '  '
+       jeq  page_fwd
+       ci   r0, ', '
+       jeq  page_back
+       ci   r0, '. '
+       jeq  page_fwd
+       ci   r0, '1 '
+       jl   wait_key
+       ci   r0, '9 '
+       jle  page_jump
+       ci   r0, 'a '
+       jl   !
+       ai   r0, ->2000
+!      ci   r0, 'A '
+       jl   wait_key
+       ci   r0, 'S '
+       jh   wait_key
+
+       ; image selected
+       ai   r0, ->4100        ; get index 0 .. 18
+       srl  r0, 8
+       mov  @more_items, r1   ; must not select empty item
+       a    r0, r1
+       ci   r1, items_per_page
+       jhe  wait_key
+
+       ; prepare image load
+       clr  r5                ; find image data
+       ai   r0, sorted_page_items
+       movb *r0, r5
+       srl  r5, 3
+       ai   r5, image_data    ; r5 points at send data
+
+       mov  @help_mode, r0    ; not in help mode?
+       jeq  !
+
+       ; prepare help viewer load
+       li   r0, help_send_data  ; copy filename
+       mov  *r5+, *r0+
+       mov  *r5+, *r0+
+       mov  *r5+, *r0+
+       mov  *r5+, *r0+
+       li   r5, help_type
+       mov  *r5+, *r0+
+       mov  *r5+, *r0+
+       li   r5, help_send_data
+
+!      b    @load             ; branch to menu sender
+
+       ; page selection
+page_back:
+       mov  @paged_item, r0
+       jeq  wait_key
+       ai   r0, -items_per_page
+       mov  r0, @paged_item
+       s    @c_1hb, @page_status
+       b    @show_list
+
+page_fwd:
+       mov  @paged_item, r0
+       ai   r0, items_per_page
+       c    r0, @total_items
+       jhe  wait_key
+       mov  r0, @paged_item
+       a    @c_1hb, @page_status
+       b    @show_list
+
+page_jump:
+       mov  r0, r5
+       ai   r0, ->3100        ; get index 0 .. 8
+       srl  r0, 8
+       li   r1, items_per_page
+       mpy  r0, r1
+       c    r2, @total_items
+       jhe  wait_key
+       mov  r2, @paged_item
+       movb r5, @page_status
+       b    @show_list
+
+       ; constants
+c_newkey:
+       data >2000
+c_eol:
+       data >ffff
+c_1hb:
+       data >0100
+help_type
+       data >ff02             ; help type
+       data >6022             ; help viewer start address (SADDR)
+
+wait_text:
+       text 'SORTING ...'
+none_text:
+       text 'NO IMAGES FOUND'

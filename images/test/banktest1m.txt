@@ -1,0 +1,46 @@
+ROM BANK TEST
+=============
+ 
+This test is used to check the basic
+functionality of the FinalGROM 99.
+ 
+This test will switch and run trough
+all banks in a given order and report
+any bad switches or runs.
+ 
+If a given bank is activated by the
+correct bank and the run through the
+activated bank completes successfully,
+the program displays its bank number
+followed by "OK".
+ 
+In case of a bank switch or run error,
+only the bank number is displayed, and
+an additional message at the bottom of
+the screen, including the read word
+and the expected word, is shown.  The
+message remains on the screen until
+another error ovewrites it.
+ 
+The banks are switched in scrambled
+but fixed order, so that each bank is
+activated once.  The test checks at
+the beginning of each bank, if the
+previous bank number is correct.  Then
+it runs through the entire bank and
+checks the value of every ninth word
+in that bank.  Because the check code
+is spread out more, the likelyhood of
+bad reads crashing the TI 99 might be
+higher.
+ 
+This test runs in a loop.  You may run
+it unsupervised for prolonged periods
+to see if the FinalGROM 99 runs
+stably.  Upon return, the bottom of
+the screen will tell you if there were
+any errors.
+ 
+(In case of crashes, note that it may
+*still* have been the TI 99 that has
+failed.)

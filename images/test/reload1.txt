@@ -1,0 +1,10 @@
+ROM RELOAD TEST
+===============
+ 
+This test is used to check the basic
+functionality of the FinalGROM 99.
+ 
+The first ROM program displays
+"PROGRAM #1" on the screen, and then
+reloads ROM image "reload2.bin" to
+write "PROGRAM #2" on the screen.

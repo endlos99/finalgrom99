@@ -1,0 +1,222 @@
+<style>
+body { font-family: 'Liberation Sans', Helvetica, Calibri, sans-serif; padding: 1em; margin: auto; max-width: 60em; background: #fefefe; }
+p, ul, ol, pre { margin: 1em 0; line-height: 1.3em; }
+pre { border: 1px solid #ccc; border-radius: 3px; overflow: auto; padding: 6px 10px; background-color: #eee; }
+code { border: 1px solid #ccc; border-radius: 3px; margin: 0 2px; padding: 0 2px; background-color: #eee; }
+pre > code { border: 0; margin: 0; padding: 0; }
+a, a:visited { color: #11a; text-decoration: none; }
+</style>
+<h1>FinalGROM 99</h1>
+
+<p>The <em>TI 99/4A FinalGROM Cartridge</em>, or FinalGROM 99 for short, is a
+cartridge for the TI 99/4A home computer that allows you to run ROM and GROM
+cartridge images from an SD card.  It succeeds the <a href="https://endlos99.github.io/flashrom99">FlashROM 99</a> released
+in 2016.</p>
+
+<p><img src="finalgrom99.jpg" alt="The FinalGROM 99 Cartridge" title="" /></p>
+
+<p>The FinalGROM 99 supports ROM images, GROM images, and mixed images of up to
+1 MB in size that use the write-to-ROM bank switching scheme.  The cartridge
+does not require the Peripheral Expansion Box and runs on both PAL and NTSC
+consoles, including modified consoles with an F18A.  It will also run on
+v2.2 consoles and enables those to run ROM-only programs.</p>
+
+<p>The cartridge offers some advanced modes that provide RAM and GRAM to
+programs.  It also allows a running program to reload another program from
+SD card or to dump its state to SD card.  All firmware of the FinalGROM 99
+can be updated by SD card.</p>
+
+<p>The FinalGROM 99 is released as Open Source Hardware under the
+<a href="http://www.ohwr.org/projects/cernohl/wiki">CERN OHL license</a> and the <a href="http://www.gnu.org/licenses/gpl.html">GNU GPL license</a>.  Both hardware design
+files and firmware sources are available on <a href="https://github.com/endlos99/finalgrom99">GitHub</a>.</p>
+
+<p>The project homepage with detailed instructions is located at <a href="https://endlos99.github.io/finalgrom99">GitHub</a>.</p>
+
+<h2>Using the FinalGROM 99</h2>
+
+<p>Using the FinalGROM 99 is simple and doesn't require any special hardware or
+software.</p>
+
+<p>To begin, copy some cartridge dumps or other images files onto an SD or SDHC
+card.  You can create directories to organize your programs.  Switch off the
+TI 99 and plug in the FinalGROM 99, then insert the SD card into the
+FinalGROM 99.  Switch on the TI 99 and wait until the activity indicator on
+the FinalGROM 99 is no longer lit.</p>
+
+<p>Press any key to bring up the TI menu screen.  You should see the <code>FINALGROM
+99</code> entry.  Select it to start the image browser, where you can page through
+the list of available image entries with <code>,</code>, <code>.</code>, <code>SPACE</code>, and number keys.
+When you descend into a folder, the FinalGROM will reload its contents from
+the SD card.  To go back up to the parent folder, select the special folder
+<code>/ ..</code>.</p>
+
+<p><img src="selection.png" alt="Image selection" title="" /></p>
+
+<p>Select the image you want to run.  The screen will show a loader animation
+while the image loads.  Once the image has been loaded, it will start
+automatically.  The SD card is now no longer required and may be removed.</p>
+
+<p>If only one image is found on the SD card, it is loaded immediately without
+the need to select it first.  This method ensures maximum compatibility.
+Note that ROM images loaded as single-image SD card will not run on v2.2
+consoles!</p>
+
+<p>If you want to run a different program from the SD card, reset the TI 99 by
+pressing <code>FCTN-=</code> and then reset the FinalGROM 99 by pushing the reset
+button.  If you do not reset the FinalGROM 99, the TI menu will show only
+the previously selected image.  Alternatively, you can power cycle the
+console, which will reset both TI 99 and FinalGROM 99.</p>
+
+<p>For detailed usage information please refer to the <a href="https://endlos99.github.io/finalgrom99">FinalGROM 99 homepage</a>.</p>
+
+<h2>Building the FinalGROM 99</h2>
+
+<p>The <a href="https://github.com/endlos99/finalgrom99">GitHub repository</a> contains all hardware design files and software
+sources required to build the FinalGROM 99.</p>
+
+<p>Building the FinalGROM 99 is slightly more involved than building its
+predecessor <a href="https://endlos99.github.io/flashrom99">FlashROM 99</a>, as the FinalGROM 99 uses surface-mounted
+devices (SMD), of which two are programmable.  For starters, this
+<a href="https://www.youtube.com/watch?v=6PB0u8irn-4">video tutorial</a> shows how to solder SMD ICs by hand.</p>
+
+<h3>Hardware</h3>
+
+<p>To build the FinalGROM 99, you need the following components:</p>
+
+<ul>
+<li>1x FinalGROM 99 PCB</li>
+<li>1x Xilinx XC95144XL-10TQ100 (TQFP-100)</li>
+<li>1x Atmel ATmega 328P (TQPF-32)</li>
+<li>1x Cypress SRAM CY62158ELL-45ZSXI (TSOP-44)</li>
+<li>1x On Semiconductor Voltage Converter NCP1117ST33T3G (SOT-223)</li>
+<li>12x 100 nF ceramic capacitors (SMD 0603)</li>
+<li>2x 10 uF tantalum capacitors (SMD 0603)</li>
+<li>2x 330 Ohm resistor (SMD 0603)</li>
+<li>2x 10 kOhm resistor (SMD 0603)</li>
+<li>1x LED 3-5 mm (through-hole)</li>
+<li>2x micro push button (through-hole)</li>
+<li>1x 2x3 socket (through-hole)</li>
+<li>1x SD socket or Arduino SD shield</li>
+</ul>
+
+<p>The FinalGROM 99 board was designed with <a href="http://kicad-pcb.org">KiCad</a>, a cross platform and
+open source electronics design automation suite.  The design files are
+stored in <code>pcb/</code> in the <a href="https://github.com/endlos99/finalgrom99">repository</a>.</p>
+
+<p>The size of the 330 Ohm resistor depends on the color and brightness of your
+LED.  For bright, red LEDs, 330 Ohm is a suitable value.</p>
+
+<p>Both LED and push buttons are through-hole components, so that they can be
+mounted on a cartridge shell and connected by wires to the board.</p>
+
+<p><img src="placement.jpg" alt="Parts Placement" title="" /></p>
+
+<p>For the SD socket, you need a socket that has two little nubs at the bottom
+of the socket.  Your best source for these is eBay, but check the pictures
+before you buy.  Alternatively, you may use an Arduino SD shield that is
+readily available online.  Make sure to pick a module that matches the
+pin-out of the reference module shown below.  Note that the 5V input is not
+used, so potential substitutes must be powered by 3.3V.</p>
+
+<p><img src="sdsocket.jpg" alt="SD socket" title="" /></p>
+
+<p>With some work, the FinalGROM 99 can be mounted in a standard TI 99
+cartridge shell.</p>
+
+<p><img src="cartshell.jpg" alt="Mounted in Cartridge Shell" title="" /></p>
+
+<p>If you don't want to build the board yourself, please refer to the homepage
+for available options.</p>
+
+<h3>Software</h3>
+
+<p>The firmware for the ATmega 328P consists of two components.  The <code>avr/</code>
+folder contains the microcontroller logic for accessing the SD card,
+generating the image browser, loading the selected image, and controlling
+the CPLD.  The included bootloader enables firmware updates from an SD card.</p>
+
+<p>The <code>ti/</code> folder contains TI 99 assembly sources for the image browser, the
+GPL wrapper, and the help viewer.  The assembled machine code is embedded in
+the microcontroller and loaded into RAM during operation.</p>
+
+<p>To build the software, first run the <code>make.py</code> script in the <code>ti</code> folder.
+You will need both <code>xas99</code> and <code>xga99</code> assemblers from the <a href="https://endlos99.github.io/xdt99">xdt Suite</a> to
+assemble the sources.  The script will also convert the generated machine
+code into C code for the microcintroller.</p>
+
+<pre><code>$ cd ti/
+$ ./make.py
+</code></pre>
+
+<p>The next step is to compile the microcontroller and bootloader code in
+<code>avr/</code>.  The included <code>Makefile</code>s make the compilation trivial:</p>
+
+<pre><code>$ cd avr/
+$ make
+$ cd boot/
+$ make
+</code></pre>
+
+<p>The last build yields a <code>package.hex</code> file containing both machine code
+and bootloader.  You can flash the file to the ATmega 328P using
+<a href="http://www.nongnu.org/avrdude/"><code>avrdude</code></a> or any other programmer:</p>
+
+<pre><code>$ avrdude -p m328p -P /dev/ttyACM0 -c stk500 -U flash:w:package.hex
+</code></pre>
+
+<p>Additionally, you need to program the lower fuse bits of the 328P so that it
+runs at 8 Mhz:</p>
+
+<pre><code>$ avrdude -p m328p -P /dev/ttyACM0 -c stk500 -U lfuse:w:0xe2:m
+</code></pre>
+
+<p>If you're using a different tool chain make sure to set <code>CKSEL3..0</code> in the
+lower fuse byte to <code>0100</code>.  (Note that <code>0</code> means "programmed"/checked, and
+<code>1</code> means "unprogrammed"/unchecked).</p>
+
+<p>You can verify that you're running at the right clock speed by resetting
+the FinalGROM 99 with no SD card inserted: The LED should blink about once
+per second.</p>
+
+<p>For future updates, you may copy the file <code>UPDATE.AVR</code> generated by the
+first make in <code>avr/</code> to an SD card and start the FinalGROM 99 with it.  This
+procedure will update the microcontroller similar to <code>avrdude</code>, but it does
+not touch the bootloader.</p>
+
+<p>Programming the CPLD requires the Xilinx <a href="https://www.xilinx.com/products/design-tools/ise-design-suite/ise-webpack.html">ISE 14.7 Web Pack</a> to generate
+a JEDEC file or an XSVF file.  ISE Web Pack is freely available for Windows
+and Linux.  After the installation, open ISE and open the project in
+<code>vhdl/</code>.  Click on the little green arrow next to the process window to
+generate a JEDED file.</p>
+
+<p>The microcontroller contains an XSVF player to program the CPLD without JTAG
+cable.  Generate the necessary XSVF file from the JEDED file by running (you
+may have to adjust the path in <code>impact-batch</code>)</p>
+
+<pre><code>$ cd vhdl/src
+$ ./impact-batch fg99-xsvf
+</code></pre>
+
+<p>Copy the resulting <code>.XSVF</code> file as <code>UPDATE.PLD</code> to an SD card and start the
+FinalGROM 99 with it.  The cart will program the CPLD just like a JTAG cable
+would do.</p>
+
+<p>Once microcontroller and CPLD have been programmed, the assembled FinalGROM
+99 is ready to use.</p>
+
+<h2>About the Project</h2>
+
+<p>The TI 99/4A FinalGROM Cartridge is Open Source Hardware released under the
+<a href="http://www.ohwr.org/projects/cernohl/wiki">CERN OHL license</a>, in the hope that TI 99 enthusiasts may find it
+useful.  Software components are released under the <a href="http://www.gnu.org/licenses/gpl.html">GNU GPL license</a>.</p>
+
+<p>The microcontroller code uses a modified version of the <a href="http://elm-chan.org/fsw/ff/00index_p.html">Petit FatFs</a>
+library and an adapted version of the Xilinx <a href="http://www.xilinx.com/support/documentation/application_notes/xapp058.pdf">Application Note 58</a> code.</p>
+
+<p>Heartfelt thanks go to Erik Spiehl (speccery) for helping me analyze an
+electrical problem on the development boards, and to Jim Brain (Brain) for
+showing me how to replace the Arduino shields by plain SD sockets.</p>
+
+<p>Contributions to both hardware and software are very welcome!  Please email
+feedback, support questions, inquiries for parts, and bug reports to the
+developer at <a href="&#x6D;a&#x69;&#108;&#116;&#x6F;:&#114;&#64;&#x30;&#x78;&#x30;&#49;&#46;&#x64;&#101;">&#114;&#64;&#x30;&#x78;&#x30;&#49;&#46;&#x64;&#101;</a>.</p>

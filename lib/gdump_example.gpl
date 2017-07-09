@@ -1,0 +1,37 @@
+* dump GROM example code
+
+
+       ; your main program here
+       ; ...
+
+reloc_addr:
+       equ   >8300            ; other addresses need different XML argument
+
+       move  trampoline_end - trampoline, g@trampoline, @reloc_addr
+       xml   >f0              ; look in >8300 to find branch address >8302
+       ; dump, then return
+
+       ; continue your program here
+       ; ...
+
+       ; send filename to FinalGROM 99
+trampoline:
+       copy "gdump_example_asm.dat"  ; assemble with "xas99.py -t -R"
+
+dump_seq:
+       ; send this to dump
+       text >99, 'OKFG99', >99
+       text '--------'        ; no filename
+       data >0003             ; GROM dump indicator
+       data >0000             ; no start address
+       data >0000             ; no name
+
+       ; NOTE: You must use shortened 8.3 upper-case filenames here.
+       ;       For example, to reload "mylongfile.bin", use "MYLONG~1.BIN".
+       ;       If there are multiple files with prefix "MYLONG" in the
+       ;       folder, you may have to replace the suffix "~1" by "~2",
+       ;       "~3", ... to select the correct file.
+
+trampoline_end
+
+       end

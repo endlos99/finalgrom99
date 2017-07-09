@@ -1,0 +1,12 @@
+32KEXPTEST
+==========
+ 
+This test checks if the 32K RAM
+expansion is working fine.  Bad RAM
+addresses are listes as such.
+ 
+Keep this test running for an
+expansion RAM stress test.
+ 
+Written and Copyright (c) 2016 by
+Matthew Splett (jedimatt42@AtariAge)

@@ -1,0 +1,6 @@
+setmode -bscan
+setcable -port xsvf -file update.xsvf
+adddevice -p 1 -file "../logic.jed"
+program -e -v -p 1
+closecable
+quit

@@ -1,0 +1,82 @@
+**********************************************************************
+*  FinalGROM 99 Image Sorter
+*  Copyright (c) 2017 Ralph Benzinger <r@0x01.de>
+**********************************************************************
+
+sort_area:
+       equ  >8300
+sort_result:
+       equ  >1100
+
+       ; insertion sort
+
+       ; r3 = index of item to sort
+       ; r4 = number of already sorted items and comparison index
+       ; r5 = name of item to sort
+       ; r6 = next sort area index for item to sort
+       ; r7 = sort area index of item to compare
+       ; r8 = image_data + 12 (const)
+
+       ; init
+       clr  r3
+       li   r6, sort_area
+       li   r8, image_data + 12
+       mov  r8, r5
+
+       ; insertion sort
+sort_next_item:
+       mov  *r5, r0
+       jeq  sort_done
+
+       ; find position to insert item
+       mov  r3, r4
+       inc  r4
+       li   r7, sort_area
+
+       ; scan left to right
+sort_compare_next:
+       dec  r4
+       jeq  insert_item       ; append new item
+
+       clr  r1                ; find text to compare to
+       movb *r7+, r1
+       srl  r1, 3
+       a    r8, r1
+
+       ; compare
+       ; (no length check, will hit difference at following filename/null at latest)
+       mov  r5, r0
+!      cb   *r0+, *r1+
+       jeq  -!
+       jh   sort_compare_next
+
+       ; insert to left
+insert_item:
+
+       ; move right block (end to front)
+       mov  r6, r0
+       mov  r6, r1
+       jmp  !!
+!      dec  r0                ; r0 always ahead of r1
+       movb *r0, *r1
+       dec  r1
+!      dec  r4                ; r4 = items to move
+       joc  -!!               ; repeat until r4 == -1
+
+       ; add new item
+!      movb @ws_r3lb, *r0
+
+       ; next item
+       inc  r3
+       ai   r5, 32
+       inc  r6
+       jmp  sort_next_item
+
+       ; save sort area to VDP RAM
+sort_done:
+       movb @c_eol, *r6       ; add terminator
+       li   r0, sort_result
+       li   r1, sort_area
+       mov  r3, r2            ; r3 = item count
+       inc  r2                ; terminator
+       bl   @vmbw

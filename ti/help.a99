@@ -1,0 +1,613 @@
+**********************************************************************
+*
+*  FinalGROM 99 Help Viewer
+*
+*  Copyright (c) 2017 Ralph Benzinger <r@0x01.de>
+*
+*  This program is free software; you can redistribute it and/or
+*  modify it under the terms of the GNU General Public License
+*  as published by the Free Software Foundation; either version 3
+*  of the License, or (at your option) any later version.
+*
+*  This program is distributed in the hope that it will be useful,
+*  but WITHOUT ANY WARRANTY; without even the implied warranty of
+*  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+*  GNU General Public License for more details.
+*
+*  You should have received a copy of the GNU General Public License
+*  along with this program; if not, write to the Free Software
+*  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA, USA.
+*
+**********************************************************************
+
+       ref  vdpwa, vdpwd, vdprd, scan
+
+ws:
+       equ  >8300             ; different ws because of scan
+ws_r0lb:
+       equ  ws + 1
+gplws:
+       equ  >83e0
+
+keymode:
+       equ  >8374
+keycode:
+       equ  >8375
+gplst:
+       equ  >837c
+
+scratchpad:
+       equ  >8320
+fg99_restart:
+       equ  >6020             ; skip scratchpad save (SADDR)
+
+input_buf:
+       equ  >8320
+next_find:
+       equ  >833e
+pager_pos:
+       equ  >8340
+text_lines:
+       equ  >8342             ; number of lines, 0 = at least one screen
+
+       aorg >6000
+
+* GPL header
+
+       data >aa01
+       data >0000
+       data >0000             ; power-up list
+       data menu              ; program list
+       data >0000             ; DSR list
+       data >0000             ; subprogram list
+       data 0
+       data 0
+
+menu:
+       data 0
+       data help
+       byte 11
+       text 'HELP VIEWER'
+       data 0
+
+help:
+       limi 0
+       lwpi ws
+
+       ; clear screen
+       li   r0, 0
+       li   r1, '  '
+       li   r2, 960
+       bl   @vsbmw
+
+       ; define charset >20->7F
+       li   r0, >800 + (>20 * 8)
+       li   r1, font_data
+       li   r2, (>a8 - >20) * 8
+       bl   @vmbw
+
+       ; set text mode
+       movb @cb_text, @>83d4
+       li   r0, >01f0
+       bl   @vwtr
+
+       ; init
+       clr  @input_buf
+       clr  @pager_pos
+       clr  @next_find
+
+       ; reset SCAN
+       li   r0, >9e7e
+       mov  r0, @>8372
+       li   r0, >05ff
+       mov  r0, @keymode
+
+       ; prepare text to show
+       mov  @c_920, @text_lines  ; number of text lines shown at once
+       li   r3, help_text     ; r3 = text at top of screen
+       mov  r3, r4            ; r4 = end of text
+!      mov  *r4, r0
+       jeq  eot               ; >0000 signals end of text
+       ai   r4, 40
+       jmp  -!
+
+       ; no text found
+no_text:
+       li   r0, 4 * 40 + 50
+       li   r1, t_nohelptext
+       li   r2, 18
+       bl   @vmbw
+       clr  @next_find
+       jmp  page_key
+
+       ; end of text reached
+eot:
+       mov  @2(r4), r0        ; color after end of text
+       bl   @vwtr
+
+       c    r3, r4            ; text found?
+       jeq  no_text
+
+       ai   r4, -(23 * 40)    ; r4 last position for r3
+       c    r4, r3
+       jhe  page
+       ai   r4, (23 * 40)
+       s    r3, r4
+       mov  r4, @text_lines   ; display less
+       mov  r3, r4            ; stay at top
+
+       ; show current text block
+page:
+       clr  r0                ; fill entire screen w/o footer
+       mov  r3, r1
+       mov  @text_lines, r2
+       bl   @vmbw
+
+       ; show where found marker
+       mov  @next_find, r0
+       jeq  !                 ; no search to show
+       dec  r0
+       s    r3, r0
+       jlt  !                 ; too far up
+       ci   r0, 919
+       jgt  !                 ; too far down
+       li   r1, >7f00         ; cursor
+       bl   @vsbw
+
+       ; show navigation (restore after find)
+!      li   r0, 920
+       li   r1, t_navigation
+       li   r2, 40
+       bl   @vmbw
+
+       ; show scroll bar
+       mov  @pager_pos, r0    ; delete old marker
+       li   r1, '  '
+       bl   @vsbw
+
+       mov  r3, r0            ; offset position
+       ai   r0, -help_text
+
+       mpy  @c_23, r0         ; percent in 1/23s
+       mov  r4, r2
+       ai   r2, -help_text
+       div  r2, r0
+
+       inc  r0
+       mpy  @c_40, r0
+       dec  r1
+       mov  r1, @pager_pos
+       mov  r1, r0
+       li   r1, >7e00
+       bl   @vsbw
+
+       ; reader navigation: E X < > SPACE B F Q
+page_key:
+       bl   @key              ; return key code in r0
+
+       ; check key pressed
+       ci   r0, >0520         ; FCTN-=
+       jne  !
+       clr  @>83c4            ; no interrupt routine
+       clr  @>837a            ; fix automotion sprites
+       blwp @0                ; reset
+!      ci   r0, 'a '
+       jl   !
+       ai   r0, ->2000
+!      ci   r0, '  '
+       jeq  page_fwd
+       ci   r0, '. '
+       jeq  page_fwd
+       ci   r0, 'B '
+       jeq  page_back
+       ci   r0, ', '
+       jeq  page_back
+       ci   r0, 'E '
+       jeq  line_back
+       ci   r0, 'X '
+       jeq  line_fwd
+       ci   r0, 'F '
+       jeq  find
+       ci   r0, 'N '
+       jeq  next
+       ci   r0, 'Q '
+       jne  page_key
+       b    @quit
+
+       ; do navigation
+page_fwd:
+       ai   r3, 40 * 23
+       jmp  new_pos
+
+page_back:
+       ai   r3, -40 * 23
+       jmp  new_pos
+
+line_fwd:
+       ai   r3, 40
+       jmp  new_pos
+
+line_back:
+       ai   r3, -40
+       jmp  new_pos
+
+       ; make sure text remains in visible area
+new_pos:
+       ci   r3, help_text     ; before top?
+       jhe  !
+       li   r3, help_text     ; reset to top
+       jmp  page
+!      c    r3, r4            ; beyond bottom?
+       jle  page
+       mov  r4, r3
+       jmp  page
+
+       ; find text
+find:
+       li   r0, 920
+       li   r1, t_find
+       li   r2, 40
+       bl   @vmbw
+
+       li   r0, 929
+       li   r1, input_buf
+       li   r2, 28
+       bl   @input
+
+       li   r0, help_text_data
+       mov  r0, @next_find
+
+       ; search for next ocurrence
+next:
+       mov  @next_find, r5    ; restart after last ocurrence ...
+       jeq  page_key          ; no previous find
+       c    r5, r3
+       jhe  !
+       mov  r3, r5            ; ... or current position
+!      mov  r5, r8            ; save search break boundary
+
+next_reset:
+       li   r6, input_buf
+       clr  r2                ; number of found characters
+next_compare:
+       movb *r5+, r0          ; check at text position
+       jeq  wrap_around
+       movb *r6+, r1          ; check at input buffer
+       jeq  found
+       c    r5, r8
+       jeq  not_found         ; search wrapped around
+       inc  r2
+       ci   r0, >6000         ; upper case help text
+       jl   !
+       ai   r0, ->2000
+!      cb   r0, r1
+       jeq  next_compare
+       s    r2, r5            ; reset to next search position
+       inc  r5
+       jmp  next_reset
+
+       ; found search text
+found:
+       s    r2, r5            ; revert to beginning of found text
+       mov  r5, @next_find    ; next search pos
+       clr  r6
+       mov  r5, r7
+       ai   r7, -help_text
+       div  @c_40, r6
+       s    r7, r5            ; move to beginning of line
+       mov  r5, r3
+       jmp  new_pos
+
+wrap_around:
+       movb *r6, r1           ; found in last word?
+       jeq  found
+       li   r5, help_text_data - 1  ; restart at beginning
+       jmp  next_reset              ; (-1 to avoid endless loop)
+
+not_found:
+       li   r0, 920           ; finally not found
+       li   r1, t_notfound
+       li   r2, 40
+       bl   @vmbw
+       b    @page_key
+
+       ; prompt for input
+input:
+       mov  r11, r9
+       mov  r0, r5            ; position
+       mov  r1, r6            ; input buffer
+       mov  r2, r7            ; save buffer length
+input_char:
+       mov  r5, r0
+       li   r1, >7f00         ; print cursor
+       bl   @vsbw
+input_key:
+       bl   @key
+       ci   r0, >0820         ; FCTN-S
+       jeq  input_del
+       ci   r0, >0320         ; FCTN-1
+       jeq  input_del
+       ci   r0, >0320         ; FCTN-3
+       jeq  input_clear
+       ci   r0, >0d20         ; ENTER
+       jeq  input_done
+       mov  r2, r2            ; buffer full?
+       jeq  input_key
+       ci   r0, 'a '
+       jl   !
+       ai   r0, ->2000
+!      movb r0, *r6+          ; save in buffer
+       mov  r0, r1
+       mov  r5, r0
+       bl   @vsbw
+       inc  r5
+       dec  r2
+       jmp  input_char
+input_del:
+       c    r2, r7            ; buffer already empty?
+       jeq  input_key
+       dec  r6                ; delete last char in buffer
+       mov  r5, r0            ; move cursor back
+       li   r1, '  '
+       bl   @vsbw
+       dec  r5
+       inc  r2
+       jmp  input_char
+input_clear:
+       mov  r7, r0
+       s    r2, r0            ; number of chars to clear
+       s    r0, r5
+       s    r0, r6
+       mov  r5, r0
+       li   r1, '  '
+       mov  r7, r2
+       bl   @vsbmw
+       mov  r7, r2
+       jmp  input_char
+input_done:
+       movb @cb_00, *r6        ; mark end of buffer
+       b    *r9
+
+       ; wait for new key
+key:
+       lwpi gplws
+       clr  r0
+       mov  r0, @gplst
+       bl   @scan
+       movb @gplst, r0
+       coc  @c_newkey, r0     ; new key pressed?
+       jne  key
+       lwpi ws
+       li   r0, '  '
+       movb @keycode, r0
+       rt
+
+       ; return to FinalGROM 99 menu
+quit:
+       ; move return code to scratchpad RAM so that cart RAM can be overwritten
+       li   r0, scratchpad
+       li   r1, trampoline
+       li   r2, trampoline_end - trampoline
+!      mov  *r1+, *r0+
+       dect r2
+       jne  -!
+
+       ; restore graphics
+       clr  r0                ; clear screen
+       li   r1, '  '
+       li   r2, 960
+       bl   @vsbmw
+       movb @cb_gfx1, @>83d4  ; graphics 1 mode
+       li   r0, >01e0
+       bl   @vwtr
+       li   r0, >0717         ; black on cyan
+       bl   @vwtr
+
+       ; reload menu browser
+       b    @send
+
+trampoline:
+       xorg scratchpad
+
+       ; send for menu image
+send:
+       lwpi gplws             ; adjust to browser menu
+
+       clr  @>6000            ; send one byte signal
+       clr  @>7000
+       clr  @>6000
+
+       ; wait for menu
+       src  r0, 8             ; burn at least 21 cycles
+!      mov  @>6000, r0
+       jeq  -!
+
+       ; jump back to menu browner
+       b    @fg99_restart
+
+trampoline_end:
+       aorg
+
+       ; subroutines
+       copy "vsbw.a99"
+       copy "vmbw.a99"
+       copy "vwtr.a99"
+       copy "vsbmw.a99"
+
+       ; constants
+c_newkey:
+       data >2000
+c_23:
+       data 23
+c_40:
+       data 40
+c_920:
+       data 920
+cb_text:
+       byte >f0
+cb_gfx1:
+       byte >e0
+cb_00:
+       byte 0
+t_navigation:
+       text ' [ ., page  EX line  FN find   Q quit ] '
+t_nohelptext:
+       text 'No Help Text Found'
+t_find:
+       text ' [ Find:                              ] '
+t_notfound:
+       text ' [ Find: ** Text Not Found **         ] '
+
+       ; graphics
+font_data:
+       data >0000, >0000, >0000, >0000  ; >20
+       data >0010, >1010, >1000, >1000
+       data >0028, >2828, >0000, >0000
+       data >0028, >7c28, >287c, >2800
+       data >0038, >5430, >1854, >3800
+       data >0044, >4c18, >3064, >4400
+       data >0020, >5020, >5448, >3400
+       data >0008, >1020, >0000, >0000
+       data >0008, >1010, >1010, >0800
+       data >0020, >1010, >1010, >2000
+       data >0044, >287c, >2844, >0000
+       data >0010, >107c, >1010, >0000
+       data >0000, >0000, >0030, >1020
+       data >0000, >007c, >0000, >0000
+       data >0000, >0000, >0030, >3000
+       data >0004, >0810, >2040, >0000
+       data >0038, >4444, >4444, >3800  ; >30
+       data >0010, >3010, >1010, >3800
+       data >0038, >4408, >1020, >7c00
+       data >0038, >4418, >0444, >3800
+       data >0008, >1828, >487c, >0800
+       data >0078, >4078, >0444, >3800
+       data >0038, >4078, >4444, >3800
+       data >007c, >0408, >1020, >2000
+       data >0038, >4438, >4444, >3800
+       data >0038, >4444, >3c04, >7800
+       data >0000, >3030, >0030, >3000
+       data >0000, >3030, >0030, >1020
+       data >0000, >1020, >4020, >1000
+       data >0000, >007c, >007c, >0000
+       data >0000, >1008, >0408, >1000
+       data >0038, >4408, >1000, >1000
+       data >0038, >4454, >5840, >3c00  ; >40
+       data >0038, >4444, >7c44, >4400
+       data >0078, >4478, >4444, >7800
+       data >0038, >4440, >4044, >3800
+       data >0078, >4444, >4444, >7800
+       data >007c, >4078, >4040, >7c00
+       data >007c, >4078, >4040, >4000
+       data >0038, >4440, >4c44, >3800
+       data >0044, >447c, >4444, >4400
+       data >0038, >1010, >1010, >3800
+       data >0004, >0404, >0444, >3800
+       data >0044, >4850, >7048, >4400
+       data >0040, >4040, >4040, >7c00
+       data >0044, >6c54, >4444, >4400
+       data >0044, >6454, >544c, >4400
+       data >0038, >4444, >4444, >3800
+       data >0078, >4444, >7840, >4000  ; >50
+       data >0038, >4444, >544c, >3c00
+       data >0078, >4444, >7848, >4400
+       data >0038, >4430, >0844, >3800
+       data >007c, >1010, >1010, >1000
+       data >0044, >4444, >4444, >3800
+       data >0044, >4444, >4428, >1000
+       data >0044, >4444, >5454, >2800
+       data >0044, >2810, >1028, >4400
+       data >0044, >4428, >1010, >1000
+       data >007c, >0810, >2040, >7c00
+       data >0038, >2020, >2020, >3800
+       data >0000, >4020, >1008, >0400
+       data >0038, >0808, >0808, >3800
+       data >0010, >2844, >0000, >0000
+       data >0000, >0000, >0000, >7c00
+       data >0020, >1008, >0000, >0000  ; >60
+       data >0000, >0038, >4848, >3c00
+       data >0020, >2038, >2424, >3800
+       data >0000, >001c, >2020, >1c00
+       data >0004, >041c, >2424, >1c00
+       data >0000, >001c, >2830, >1c00
+       data >000c, >1038, >1010, >1000
+       data >0000, >001c, >241c, >0438
+       data >0020, >2038, >2424, >2400
+       data >0010, >0030, >1010, >3800
+       data >0008, >0008, >0808, >4830
+       data >0020, >2024, >3828, >2400
+       data >0030, >1010, >1010, >3800
+       data >0000, >0078, >5454, >5400
+       data >0000, >0038, >2424, >2400
+       data >0000, >0018, >2424, >1800
+       data >0000, >0038, >2438, >2020  ; >70
+       data >0000, >001c, >241c, >0404
+       data >0000, >0028, >3420, >2000
+       data >0000, >001c, >300c, >3800
+       data >0010, >1038, >1010, >0c00
+       data >0000, >0024, >2424, >1c00
+       data >0000, >0044, >2828, >1000
+       data >0000, >0044, >5454, >2800
+       data >0000, >0024, >1818, >2400
+       data >0000, >0024, >241c, >0438
+       data >0000, >003c, >0810, >3c00
+       data >000c, >1010, >2010, >100c
+       data >0010, >1010, >0010, >1010
+       data >0060, >1010, >0810, >1060
+       data >0606, >0606, >0606, >0606
+       data >007c, >7c7c, >7c7c, >7c00  ; >7F
+
+       ; FinalGROM title
+       text >fcfcfce0e0e0fcfc  ; >80
+       text >f8f8f8000000c0c0
+       text >e0e0e00000ececec
+       text >0000000000bcfcfc
+       text >000000000080c4ec
+       text >0000000000f8fcfc
+       text >0c0c0c0c0cececec
+       text >8c9cbcb8b8b8b8b8
+       text >f8fcfc000000000c
+       text >3c3cbc3838383cbc
+       text >f8fcfc0c0c0cfcfc
+       text >0c1cbcb8b8b8b838
+       text >f8fcfc0c0c0c0c0c
+       text >383cbcbcbcb8b8b8
+       text >0c1cbcfcfcecec0c
+       text >8080848484848480
+       text >7cfcfcc0c0c0fcfc  ; >90
+       text >c0e0f4747474f4f0
+       text >7cfcfcc0c0c0fcfc
+       text >c0e0f0707070f0f0
+       text >fce0e0e0e0e0e0e0
+       text >c000000000000000
+       text >ecececececececec
+       text >8080808080808080
+       text >ecececececece4e0
+       text >8080808080fcfcf8
+       text >ecececececececec
+       text >b8b8b8b8b8bc9c8c
+       text >0c0c0c0c0cfcfcf8
+       text >bcb8b8b8b8b83838
+       text >f83c1c0c0c0c0c0c
+       text >3838b8b8b8bc9c8c
+       text >0c0c0c0c0cfcfcf8  ; >a0
+       text >b8b8b8b8b8b83838
+       text >0c0c0c0c0c0c0c0c
+       text >8080808484848080
+       text >7c0000c0c0fcfc7c
+       text >f070707474f4e0c0
+       text >7c0000c0c0fcfc7c
+       text >f070707070f0e0c0  ; >a7
+
+       ; generated data
+help_text:
+       text >20808182838485868788898a8b8c8d8e8f90919293, '   Help Viewer     '
+       text >209495969798999a9b9c9d9e9fa0a1a2a3a4a5a6a7, '   (C) 2017 RB     '
+       text '                                        '
+
+help_text_data:
+       equ  $
+
+       ;copy "help_test.a99"  ; test data
+
+       end
