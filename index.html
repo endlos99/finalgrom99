@@ -723,7 +723,7 @@ only image on the SD card so that it is loaded directly.</p>
 <p>If this doesn't help, please send a note to the developer at <a href="&#109;&#x61;i&#x6C;&#116;&#111;:&#114;&#64;&#48;&#x78;&#48;&#49;&#x2E;&#100;&#101;">&#114;&#64;&#48;&#x78;&#48;&#49;&#x2E;&#100;&#101;</a> for
 further analysis.</p>
 
-<h3>RAM/GRAM cannot be written to.</h3>
+<h4>RAM/GRAM cannot be written to.</h4>
 
 <p>The program cannot write to the RAM banks or the GRAM banks.</p>
 
@@ -739,9 +739,10 @@ file must contain <code>G</code>, <code>R</code>, or <code>X</code>.</p>
 <p>The Mini Memory is a special cartridge that features some RAM, which is not
 present in other cartridges.</p>
 
-<p>Create a <code>.CFG</code> file that contains only the letter <code>R</code>.  This will enable
-RAM Mode required for the Mini Memory.  (For details, see section "Advanced
-Modes".)</p>
+<p>Open a hex editor and write the letter <code>R</code> or hex code
+<code>&gt;52</code> into the fourth byte at <code>&gt;6003</code>.  This
+will enable RAM Mode required for the Mini Memory.  (For details, see
+section "Advanced Modes".)</p>
 
 <p>Note however, that the FinalGROM 99 is not battery-backed, so any RAM
 contents will be discarded once the power is cut or a different image is
