@@ -9,4 +9,5 @@ typedef unsigned long uint32_t;
 
 #define PROGMEM
 #define _delay_ms(x)
+#define _delay_us(x)
 uint8_t pgm_read_byte(const uint8_t *p);

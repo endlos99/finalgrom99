@@ -529,10 +529,11 @@ a port of the Xilinx XSVF player described in [Application Note 058][9].
 How to Update the FinalGROM 99
 ------------------------------
 
-In the future, updates to the FinalGROM 99 firmware may become necessary to
-add new features or to improve compatibility.  These updates will be
-distributed as binary files that can be applied via SD card.  No special
-equipment is required to update the FinalGROM 99.
+The updates listed below are currently available.  These updates are
+distributed as binary files that must be applied via SD card.  No special
+equipment is required to update the FinalGROM 99.  Please check if the scope
+of a specific update concerns you before you apply the update.  All updates
+are cumulative, so you only have to apply the latest update shown here.
 
 Files ending in `.AVR` will update the microcontroller.  Copy such a file as
 `UPDATE.AVR` to an SD card and insert it into the FinalGROM 99.  Plug the
@@ -559,16 +560,31 @@ TI 99, but just its power.
 Any errors during the update will be indicated by a blinking LED.  The blink
 pattern tells you what kind of error occurred:
 
-    (o)........(o).........(o)........(o)........(o)........(o) ...
+    #U1  (o)........(o).........(o)........(o)........(o)........(o) ...
 
 indicates a bad SD card reader, a bad SD card, or the wrong filesystem,
 
-    (o).(o)........(o).(o).........(o).(o)........(o).(o)...... ...
+    #U2  (o).(o)........(o).(o).........(o).(o)........(o).(o)...... ...
 
 indicates a missing or corrupt update file.
 
 A higher number of blips indicates an error of the XSFV player while reading
 the `UPDATE.PLD` file, which should not happen.
+
+
+### Update 1.1
+
+Delays mounting of SD card by half a millisecond.
+
+Symptom: Start-up issues with your SD card.  In particular, when you turn on
+your console, the FinalGROM 99 blinks with pattern #1 (see troubleshooting
+section), but works normally when you press the FinalGROM 99 reset button
+once.
+
+Cause: The SD card is mounted shortly after power is up.  This might be too
+fast for some, especially older cards to initialize properly.
+
+[Download](/updates/version_1_1.avr)
 
 
 Troubleshooting the FinalGROM 99
@@ -586,15 +602,15 @@ word read.
 If the LED starts blinking, the FinalGROM 99 could not read some part of the
 SD card:
 
-    (o)........(o).........(o)........(o)........(o)........(o) ...
+    #1  (o)........(o).........(o)........(o)........(o)........(o) ...
 
 indicates a bad SD card reader, a bad SD card, or the wrong filesystem,
 
-    (o).(o)........(o).(o).........(o).(o)........(o).(o)...... ...
+    #2  (o).(o)........(o).(o).........(o).(o)........(o).(o)...... ...
 
 indicates the root folder cannot be read, or the image cannot be dumped,
 
-    (o).(o).(o)........(o).(o).(o).........(o).(o).(o)......... ...
+    #3  (o).(o).(o)........(o).(o).(o).........(o).(o).(o)......... ...
 
 indicates a corrupt image, a corrupt help file, or an error during dumping.
 
@@ -712,7 +728,7 @@ only image on the SD card so that it is loaded directly.
 If this doesn't help, please send a note to the developer at <r@0x01.de> for
 further analysis.
 
-### RAM/GRAM cannot be written to.
+#### RAM/GRAM cannot be written to.
 
 The program cannot write to the RAM banks or the GRAM banks.
 
@@ -728,9 +744,9 @@ The Mini Memory won't save assembly programs.
 The Mini Memory is a special cartridge that features some RAM, which is not
 present in other cartridges.
 
-Create a `.CFG` file that contains only the letter `R`.  This will enable
-RAM Mode required for the Mini Memory.  (For details, see section "Advanced
-Modes".)
+Open a hex editor and write the letter `R` or hex code `>52` into the
+fourth byte at `>6003`.  This will enable RAM Mode, which required for the
+Mini Memory.  (For details, see section "Advanced Modes".)
 
 Note however, that the FinalGROM 99 is not battery-backed, so any RAM
 contents will be discarded once the power is cut or a different image is

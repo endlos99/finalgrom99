@@ -386,7 +386,7 @@ known issues.</p>
 
 <p>If you find additional images that don't work as intended on the FinalGROM
 99, first check their filenames (see section "Filenames"), and then please
-send a note to the developer at <a href="&#x6D;&#97;i&#x6C;&#116;&#x6F;:&#x72;&#64;&#x30;&#x78;&#48;&#x31;&#x2E;&#x64;&#x65;">&#x72;&#64;&#x30;&#x78;&#48;&#x31;&#x2E;&#x64;&#x65;</a>.  Compatibility may be improved
+send a note to the developer at <a href="&#x6D;&#97;&#105;&#108;&#116;&#111;:&#114;&#64;&#x30;&#x78;&#x30;&#49;&#x2E;&#x64;&#x65;">&#114;&#64;&#x30;&#x78;&#x30;&#49;&#x2E;&#x64;&#x65;</a>.  Compatibility may be improved
 with a firmware update.</p>
 
 <h2>How to Develop for the FinalGROM 99</h2>
@@ -523,10 +523,11 @@ a port of the Xilinx XSVF player described in <a href="http://www.xilinx.com/sup
 
 <h2>How to Update the FinalGROM 99</h2>
 
-<p>In the future, updates to the FinalGROM 99 firmware may become necessary to
-add new features or to improve compatibility.  These updates will be
-distributed as binary files that can be applied via SD card.  No special
-equipment is required to update the FinalGROM 99.</p>
+<p>The updates listed below are currently available.  These updates are
+distributed as binary files that must be applied via SD card.  No special
+equipment is required to update the FinalGROM 99.  Please check if the scope
+of a specific update concerns you before you apply the update.  All updates
+are cumulative, so you only have to apply the latest update shown here.</p>
 
 <p>Files ending in <code>.AVR</code> will update the microcontroller.  Copy such a file as
 <code>UPDATE.AVR</code> to an SD card and insert it into the FinalGROM 99.  Plug the
@@ -553,18 +554,32 @@ TI 99, but just its power.</p>
 <p>Any errors during the update will be indicated by a blinking LED.  The blink
 pattern tells you what kind of error occurred:</p>
 
-<pre><code>(o)........(o).........(o)........(o)........(o)........(o) ...
+<pre><code>#U1  (o)........(o).........(o)........(o)........(o)........(o) ...
 </code></pre>
 
 <p>indicates a bad SD card reader, a bad SD card, or the wrong filesystem,</p>
 
-<pre><code>(o).(o)........(o).(o).........(o).(o)........(o).(o)...... ...
+<pre><code>#U2  (o).(o)........(o).(o).........(o).(o)........(o).(o)...... ...
 </code></pre>
 
 <p>indicates a missing or corrupt update file.</p>
 
 <p>A higher number of blips indicates an error of the XSFV player while reading
 the <code>UPDATE.PLD</code> file, which should not happen.</p>
+
+<h3>Update 1.1</h3>
+
+<p>Delays mounting of SD card by half a millisecond.</p>
+
+<p>Symptom: Start-up issues with your SD card.  In particular, when you turn on
+your console, the FinalGROM 99 blinks with pattern #1 (see troubleshooting
+section), but works normally when you press the FinalGROM 99 reset button
+once.</p>
+
+<p>Cause: The SD card is mounted shortly after power is up.  This might be too
+fast for some, especially older cards to initialize properly.</p>
+
+<p><a href="/updates/version_1_1.avr">Download</a></p>
 
 <h2>Troubleshooting the FinalGROM 99</h2>
 
@@ -579,17 +594,17 @@ word read.</p>
 <p>If the LED starts blinking, the FinalGROM 99 could not read some part of the
 SD card:</p>
 
-<pre><code>(o)........(o).........(o)........(o)........(o)........(o) ...
+<pre><code>#1  (o)........(o).........(o)........(o)........(o)........(o) ...
 </code></pre>
 
 <p>indicates a bad SD card reader, a bad SD card, or the wrong filesystem,</p>
 
-<pre><code>(o).(o)........(o).(o).........(o).(o)........(o).(o)...... ...
+<pre><code>#2  (o).(o)........(o).(o).........(o).(o)........(o).(o)...... ...
 </code></pre>
 
 <p>indicates the root folder cannot be read, or the image cannot be dumped,</p>
 
-<pre><code>(o).(o).(o)........(o).(o).(o).........(o).(o).(o)......... ...
+<pre><code>#3  (o).(o).(o)........(o).(o).(o).........(o).(o).(o)......... ...
 </code></pre>
 
 <p>indicates a corrupt image, a corrupt help file, or an error during dumping.</p>
@@ -690,7 +705,7 @@ directly to RAM by copying this image file as the only file on an SD card.
 This will provide the exact environment the program expects.</p>
 
 <p>If this doesn't help, the image may be incompatible.  Please send a note to
-the developer at <a href="&#109;&#x61;&#x69;&#108;&#116;&#x6F;:&#114;&#64;0&#x78;&#48;&#x31;.&#x64;&#101;">&#114;&#64;0&#x78;&#48;&#x31;.&#x64;&#101;</a> for further analysis.</p>
+the developer at <a href="&#x6D;&#x61;il&#116;&#x6F;:&#114;&#64;0&#120;&#48;&#x31;.&#x64;&#101;">&#114;&#64;0&#120;&#48;&#x31;.&#x64;&#101;</a> for further analysis.</p>
 
 <h4>Some program doesn't work properly.</h4>
 
@@ -707,10 +722,10 @@ other unexpected behavior.</p>
 menu again to eliminate most issues.  Alternatively, put the image as the
 only image on the SD card so that it is loaded directly.</p>
 
-<p>If this doesn't help, please send a note to the developer at <a href="ma&#x69;&#x6C;&#x74;o:&#x72;&#64;&#x30;&#x78;&#x30;&#49;&#46;&#x64;&#101;">&#x72;&#64;&#x30;&#x78;&#x30;&#49;&#46;&#x64;&#101;</a> for
+<p>If this doesn't help, please send a note to the developer at <a href="&#x6D;&#x61;&#x69;&#108;&#116;&#111;:&#x72;&#64;&#48;&#x78;&#x30;&#x31;&#x2E;&#x64;&#101;">&#x72;&#64;&#48;&#x78;&#x30;&#x31;&#x2E;&#x64;&#101;</a> for
 further analysis.</p>
 
-<h3>RAM/GRAM cannot be written to.</h3>
+<h4>RAM/GRAM cannot be written to.</h4>
 
 <p>The program cannot write to the RAM banks or the GRAM banks.</p>
 
@@ -726,9 +741,9 @@ file must contain <code>G</code>, <code>R</code>, or <code>X</code>.</p>
 <p>The Mini Memory is a special cartridge that features some RAM, which is not
 present in other cartridges.</p>
 
-<p>Create a <code>.CFG</code> file that contains only the letter <code>R</code>.  This will enable
-RAM Mode required for the Mini Memory.  (For details, see section "Advanced
-Modes".)</p>
+<p>Open a hex editor and write the letter <code>R</code> or hex code <code>&gt;52</code> into the
+fourth byte at <code>&gt;6003</code>.  This will enable RAM Mode, which required for the
+Mini Memory.  (For details, see section "Advanced Modes".)</p>
 
 <p>Note however, that the FinalGROM 99 is not battery-backed, so any RAM
 contents will be discarded once the power is cut or a different image is
@@ -746,7 +761,7 @@ FinalGROM 99:</p>
 <p>Note that this list refers to particular images.  There might be alternative
 images of the same programs that work fine with the FinalGROM 99.</p>
 
-<p>Please report problems to the developer at <a href="&#109;&#x61;&#x69;&#x6C;&#x74;&#x6F;:&#x72;&#64;&#48;&#x78;0&#x31;&#46;d&#101;">&#x72;&#64;&#48;&#x78;0&#x31;&#46;d&#101;</a> so that they may be
+<p>Please report problems to the developer at <a href="&#x6D;&#97;&#x69;&#108;&#x74;&#111;:&#x72;&#64;0&#x78;&#x30;1&#x2E;&#x64;&#x65;">&#x72;&#64;0&#x78;&#x30;1&#x2E;&#x64;&#x65;</a> so that they may be
 fixed with a future update.</p>
 
 <h2>Where to Get the FinalGROM 99</h2>
@@ -771,7 +786,7 @@ include a cartridge shell.</p>
 The other option is intended for FinalGROM 99s in cartridge shells so that
 you can mount the buttons and LEDs of your choice on the shell.</p>
 
-<p>Please contact the developer at <a href="&#x6D;&#x61;&#x69;&#108;t&#x6F;:&#114;&#64;&#48;&#120;&#48;&#x31;&#46;&#x64;&#x65;">&#114;&#64;&#48;&#120;&#48;&#x31;&#46;&#x64;&#x65;</a> for further information.</p>
+<p>Please contact the developer at <a href="&#x6D;&#97;i&#108;&#116;&#x6F;:r&#64;&#48;&#120;&#x30;1&#46;&#x64;&#101;">r&#64;&#48;&#120;&#x30;1&#46;&#x64;&#101;</a> for further information.</p>
 
 <h2>About the Project</h2>
 
@@ -789,5 +804,5 @@ showing me how to replace the Arduino shields by proper SD sockets.</p>
 
 <p>Contributions to both hardware and software are welcome.  Please email
 feedback, support questions, inquiries for parts, and bug reports to the
-developer at <a href="m&#x61;&#105;&#x6C;&#x74;&#x6F;:&#114;&#64;&#x30;&#x78;&#x30;&#x31;&#46;&#100;&#101;">&#114;&#64;&#x30;&#x78;&#x30;&#x31;&#46;&#100;&#101;</a>.  Discussions about the FinalGROM 99 happen over at
+developer at <a href="&#109;&#x61;&#x69;&#x6C;&#x74;o:&#x72;&#64;&#x30;&#120;&#x30;&#x31;&#x2E;&#100;&#101;">&#x72;&#64;&#x30;&#120;&#x30;&#x31;&#x2E;&#100;&#101;</a>.  Discussions about the FinalGROM 99 happen over at
 <a href="http://atariage.com/forums/topic/260917-the-finalgrom-99">AtariAge</a>.</p>

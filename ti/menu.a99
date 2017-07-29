@@ -432,7 +432,7 @@ font_data:
        text >c7c0c0dcdcdf8f07
        text >fc1c1c1c1cfcf8f0
        text >0000000000494900  ; >7e  "~" -> "..."
-       text >0000000000000000  ; >7f  extended version (planned)
+       text >0000000000000030  ; >7f  extended version
 
        ; animation patterns
        text >0060600000060600  ; >80

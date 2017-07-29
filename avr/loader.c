@@ -96,6 +96,7 @@ void setup()
   path_len = 0;
 
   // open SD card
+  _delay_us(500);  // wait for SD cards to settle
   if (pf_mount(&sd_fs))
     flash_error(1);
 }
