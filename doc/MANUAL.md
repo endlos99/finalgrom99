@@ -529,7 +529,7 @@ a port of the Xilinx XSVF player described in [Application Note 058][9].
 How to Update the FinalGROM 99
 ------------------------------
 
-The updates listed below are currently available.  These updates are
+All currently available updates are listed below.  These updates are
 distributed as binary files that must be applied via SD card.  No special
 equipment is required to update the FinalGROM 99.  Please check if the scope
 of a specific update concerns you before you apply the update.  All updates
@@ -574,15 +574,14 @@ the `UPDATE.PLD` file, which should not happen.
 
 ### Update 1.1
 
-Delays mounting of SD card by half a millisecond.
+Issues:
+- When you turn on your console, the FinalGROM 99 blinks with pattern #1 (see
+troubleshooting section), but works normally when you press the FinalGROM 99
+reset button once.
+- The FinalGROM 99 menu shows system or hidden files or folders.
 
-Symptom: Start-up issues with your SD card.  In particular, when you turn on
-your console, the FinalGROM 99 blinks with pattern #1 (see troubleshooting
-section), but works normally when you press the FinalGROM 99 reset button
-once.
-
-Cause: The SD card is mounted shortly after power is up.  This might be too
-fast for some, especially older cards to initialize properly.
+This update delays the mounting of the SD card by half a millisecond, and
+ignores hidden and system files and folders on the SD card.
 
 [Download](/updates/version_1_1.avr)
 

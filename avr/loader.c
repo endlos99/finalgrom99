@@ -140,6 +140,8 @@ uint8_t genMenu()
       flash_error(2);
     if (sd_fno.fname[0] == 0)  // end of dir
       break;
+    if (sd_fno.fattrib & (AM_HID | AM_SYS))
+      continue;
 
     uint8_t added = (sd_fno.fattrib & AM_DIR) ?
       genFolderEntry((const uint8_t *)sd_fno.fname) :
