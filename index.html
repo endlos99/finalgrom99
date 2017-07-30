@@ -582,15 +582,17 @@ the <code>UPDATE.PLD</code> file, which should not happen.</p>
 
 <h3>Update 1.1</h3>
 
-<p>Delays mounting of SD card by half a millisecond.</p>
+<p>Issues:
+<ul>
+<li> When you turn on your console, the FinalGROM 99 blinks with pattern #1 (see
+troubleshooting section), but works normally when you press the FinalGROM 99
+reset button once.
+<li>The FinalGROM 99 menu shows system or hidden files or folders.</p>
+</ul>
+</p>
 
-<p>Symptom: Start-up issues with your SD card.  In particular, when you turn on
-your console, the FinalGROM 99 blinks with pattern #1 (see troubleshooting
-section), but works normally when you press the FinalGROM 99 reset button
-once.</p>
-
-<p>Cause: The SD card is mounted shortly after power is up.  This might be too
-fast for some, especially older cards to initialize properly.</p>
+<p>This update delays the mounting of the SD card by half a millisecond, and
+ignores hidden and system files and folders on the SD card.</p>
 
 <p><a href="https://raw.githubusercontent.com/endlos99/finalgrom99/master/updates/version_1_1.avr">Download</a></p>
 
