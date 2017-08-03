@@ -542,22 +542,23 @@ equipment is required to update the FinalGROM 99.  Please check if the scope
 of a specific update concerns you before you apply the update.  All updates
 are cumulative, so you only have to apply the latest update shown here.</p>
 
-<p>Files ending in <code>.AVR</code> will update the microcontroller.  Copy such a file as
-<code>UPDATE.AVR</code> to an SD card and insert it into the FinalGROM 99.  Plug the
-FinalGROM 99 into the TI 99 and turn on the console.  The update will start
-automatically, and is complete after a few seconds when the LED turns off.
-Make sure to remove the SD card first before you reset the FinalGROM 99 or
-power-cycle the console!  (Otherwise, the update will be applied again.)</p>
+<p>Files ending in <code>.AVR</code> are updates for the microcontroller.  To work, you
+need to rename such a file to <code>UPDATE.AVR</code> and copy it onto an SD card.
+Insert it into the FinalGROM 99, plug the FinalGROM 99 into the TI 99 and
+turn on the console.  The update will start automatically, and is complete
+after a few seconds when the LED turns off.  Make sure to remove the SD card
+first before you reset the FinalGROM 99 or power-cycle the console!
+(Otherwise, the update will be applied again.)</p>
 
 <p><strong>IMPORTANT!</strong> Do not turn off the the TI 99 while the update is in
 progress!  You may brick your FinalGROM 99, which will require an AVR
 programmer to debrick again.</p>
 
-<p>Files ending in <code>.PLD</code> will update the main logic inside the CPLD.  Copy
-such a file as <code>UPDATE.PLD</code> to an SD card and follow the procedure above.
-The update will take about 15 seconds.  Note that the TI may crash during
-the update, but this does no harm.  Do not forget to remove the SD card
-before you power cycle or reset the FinalGROM 99!</p>
+<p>Files ending in <code>.PLD</code> will update the main logic inside the CPLD.  Rename
+such a file to <code>UPDATE.PLD</code> and copy it to an SD card.  Now follow the
+procedure above.  The update will take about 15 seconds.  Note that the TI
+may crash during the update, but this does no harm.  Do not forget to remove
+the SD card before you power cycle or reset the FinalGROM 99!</p>
 
 <p>A failed <code>.PLD</code> update may leave your FinalGROM 99 not working, but it
 cannot brick your cart.  In case of a failure, make sure the update file is
