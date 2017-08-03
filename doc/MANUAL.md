@@ -535,22 +535,23 @@ equipment is required to update the FinalGROM 99.  Please check if the scope
 of a specific update concerns you before you apply the update.  All updates
 are cumulative, so you only have to apply the latest update shown here.
 
-Files ending in `.AVR` will update the microcontroller.  Copy such a file as
-`UPDATE.AVR` to an SD card and insert it into the FinalGROM 99.  Plug the
-FinalGROM 99 into the TI 99 and turn on the console.  The update will start
-automatically, and is complete after a few seconds when the LED turns off.
-Make sure to remove the SD card first before you reset the FinalGROM 99 or
-power-cycle the console!  (Otherwise, the update will be applied again.)
+Files ending in `.AVR` are updates for the microcontroller.  To work, you
+need to rename such a file to `UPDATE.AVR` and copy it onto an SD card.
+Insert it into the FinalGROM 99, plug the FinalGROM 99 into the TI 99 and
+turn on the console.  The update will start automatically, and is complete
+after a few seconds when the LED turns off.  Make sure to remove the SD card
+first before you reset the FinalGROM 99 or power-cycle the console!
+(Otherwise, the update will be applied again.)
 
 **IMPORTANT!** Do not turn off the the TI 99 while the update is in
 progress!  You may brick your FinalGROM 99, which will require an AVR
 programmer to debrick again.
 
-Files ending in `.PLD` will update the main logic inside the CPLD.  Copy
-such a file as `UPDATE.PLD` to an SD card and follow the procedure above.
-The update will take about 15 seconds.  Note that the TI may crash during
-the update, but this does no harm.  Do not forget to remove the SD card
-before you power cycle or reset the FinalGROM 99!
+Files ending in `.PLD` will update the main logic inside the CPLD.  Rename
+such a file to `UPDATE.PLD` and copy it to an SD card.  Now follow the
+procedure above.  The update will take about 15 seconds.  Note that the TI
+may crash during the update, but this does no harm.  Do not forget to remove
+the SD card before you power cycle or reset the FinalGROM 99!
 
 A failed `.PLD` update may leave your FinalGROM 99 not working, but it
 cannot brick your cart.  In case of a failure, make sure the update file is
@@ -575,10 +576,10 @@ the `UPDATE.PLD` file, which should not happen.
 ### Update 1.1
 
 Issues:
-- When you turn on your console, the FinalGROM 99 blinks with pattern #1 (see
+  - When you turn on your console, the FinalGROM 99 blinks with pattern #1 (see
 troubleshooting section), but works normally when you press the FinalGROM 99
 reset button once.
-- The FinalGROM 99 menu shows system or hidden files or folders.
+  - The FinalGROM 99 menu shows system or hidden files or folders.
 
 This update delays the mounting of the SD card by half a millisecond, and
 ignores hidden and system files and folders on the SD card.
