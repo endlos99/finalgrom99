@@ -176,6 +176,11 @@ _In summary, don't rename cartridge dumps.  GROM filenames must not exceed 8
 characters AND must end in `G`.  ROM filename must have more than 8
 characters OR must not end in `D` or `G`._
 
+For all images, there is always a *main* file that is used for help texts or
+RAM/GRAM configurations.  For GROM and mixed images, the main file is the
+`G` file, for ROM-only files this is the `C` file or the actual filename of
+a single-file image.
+
 
 ### SD Cards
 
@@ -331,9 +336,7 @@ with `>`, and only the last two hexadecimal characters are taken into
 account. If no color is given, the default color is used.
 
 The name of the help text file must end in `.TXT`. The filename of the
-`.TXT` file must match the main filename of your image.  For GROM and
-mixed images, this would be the `G` file, for ROM-only files this
-would be the `C` file or the actual filename for single-file images.
+`.TXT` file must match the main filename of your image (see Filenames).
 
 
 ### Advanced Modes
@@ -454,21 +457,25 @@ code is easily adapted to other assemblers as well.
 ### Dumping
 
 To save the progress or high scores of games or to persist personal tool
-preferences, the FinalGROM 99 supports the dumping of single-file ROM
-images.  To make sense, such an image should run in RAM or GRAM mode, so
-that its RAM banks/GRAM containing updated data are saved.
+preferences, the FinalGROM 99 supports the dumping of ROM images, GROM
+images, or mixed images with one ROM bank.  Dumping an image writes back
+some or all image files that are marked as RAM or GRAM.  This selection is
+made by the dump initiator and can comprise the RAM bank, the GRAM bank, or
+both.
 
 To initiate the dump, the sequence `>99`, "OKFG99", `>99` followed by the
-file data and dump code `>ff03` must be sent.  During the dump, the
-cartridge logic needs exclusive access to the SRAM, so dumping can only be
-initiated from scratchpad RAM or expansion RAM.  To detect when the dump has
-completed, the program must watch address `>6000` (or more) for a non-zero
-word to appear.  Note that loading a GROM-only programs will always set ROM
-address `>6000` to value `>9999`.
+file data and dump code `>ffx3` must be sent, where `x` equals 1, 2, or 3
+for RAM, GRAM, or RAM+GRAM, resp.  During the dump, the cartridge logic
+needs exclusive access to the SRAM, so dumping can only be initiated from
+scratchpad RAM or expansion RAM.  To detect when the dump has completed, the
+program must watch address `>6000` (or more) for a non-zero word to appear.
+Note that loading a GROM-only programs will always set ROM address `>6000`
+to value `>9999`.
 
-Dumping saves the entire image in RAM/GRAM and overwrites the original image
-file on the SD card.  For technical reasons, the dump cannot be written to a
-new non-existing file, so keep a copy of the original image around.
+Dumping saves entire files with RAM or GRAM content and overwrites the
+original image files on the SD card.  For technical reasons, the dump cannot
+be written to new, non-existing files, so keep a copy of the original image
+around.
 
 The [repository][2] contains sample code `lib/dump_example.a99` and
 `lib/gdump_example.gpl` that may serve developers as a blueprint for
@@ -765,7 +772,8 @@ Mini Memory.  (For details, see section "Advanced Modes".)
 
 Note however, that the FinalGROM 99 is not battery-backed, so any RAM
 contents will be discarded once the power is cut or a different image is
-loaded.
+loaded.  There is a special Mini Memory image available that features an
+additional `SAVE` menu option.
 
 #### Programs with known issues.
 

@@ -180,6 +180,11 @@ image will never end incorrectly in <code>D</code> or <code>G</code>.</p>
 characters AND must end in <code>G</code>.  ROM filename must have more than 8
 characters OR must not end in <code>D</code> or <code>G</code>.</em></p>
 
+<p>For all images, there is always a <em>main</em> file that is used for help texts or
+RAM/GRAM configurations.  For GROM and mixed images, the main file is the
+<code>G</code> file, for ROM-only files this is the <code>C</code> file or the actual filename of
+a single-file image.</p>
+
 <h3>SD Cards</h3>
 
 <p>The FinalGROM 99 supports both SD and SDHC cards, but not SDXC.  Cards must
@@ -332,9 +337,7 @@ with <code>&gt;</code>, and only the last two hexadecimal characters are taken i
 account. If no color is given, the default color is used.</p>
 
 <p>The name of the help text file must end in <code>.TXT</code>. The filename of the
-<code>.TXT</code> file must match the main filename of your image.  For GROM and
-mixed images, this would be the <code>G</code> file, for ROM-only files this
-would be the <code>C</code> file or the actual filename for single-file images.</p>
+<code>.TXT</code> file must match the main filename of your image (see Filenames).</p>
 
 <h3>Advanced Modes</h3>
 
@@ -386,7 +389,7 @@ known issues.</p>
 
 <p>If you find additional images that don't work as intended on the FinalGROM
 99, first check their filenames (see section "Filenames"), and then please
-send a note to the developer at <a href="&#109;&#x61;&#x69;&#x6C;&#116;o:&#114;&#64;&#x30;&#x78;&#x30;&#x31;&#x2E;&#x64;&#101;">&#114;&#64;&#x30;&#x78;&#x30;&#x31;&#x2E;&#x64;&#101;</a>.  Compatibility may be improved
+send a note to the developer at <a href="&#x6D;&#x61;&#105;&#x6C;&#116;&#x6F;:&#114;&#64;&#48;&#120;&#x30;&#x31;&#46;&#x64;&#101;">&#114;&#64;&#48;&#120;&#x30;&#x31;&#46;&#x64;&#101;</a>.  Compatibility may be improved
 with a firmware update.</p>
 
 <h2>How to Develop for the FinalGROM 99</h2>
@@ -452,21 +455,25 @@ code is easily adapted to other assemblers as well.</p>
 <h3>Dumping</h3>
 
 <p>To save the progress or high scores of games or to persist personal tool
-preferences, the FinalGROM 99 supports the dumping of single-file ROM
-images.  To make sense, such an image should run in RAM or GRAM mode, so
-that its RAM banks/GRAM containing updated data are saved.</p>
+preferences, the FinalGROM 99 supports the dumping of ROM images, GROM
+images, or mixed images with one ROM bank.  Dumping an image writes back
+some or all image files that are marked as RAM or GRAM.  This selection is
+made by the dump initiator and can comprise the RAM bank, the GRAM bank, or
+both.</p>
 
 <p>To initiate the dump, the sequence <code>&gt;99</code>, "OKFG99", <code>&gt;99</code> followed by the
-file data and dump code <code>&gt;ff03</code> must be sent.  During the dump, the
-cartridge logic needs exclusive access to the SRAM, so dumping can only be
-initiated from scratchpad RAM or expansion RAM.  To detect when the dump has
-completed, the program must watch address <code>&gt;6000</code> (or more) for a non-zero
-word to appear.  Note that loading a GROM-only programs will always set ROM
-address <code>&gt;6000</code> to value <code>&gt;9999</code>.</p>
+file data and dump code <code>&gt;ffx3</code> must be sent, where <code>x</code> equals 1, 2, or 3
+for RAM, GRAM, or RAM+GRAM, resp.  During the dump, the cartridge logic
+needs exclusive access to the SRAM, so dumping can only be initiated from
+scratchpad RAM or expansion RAM.  To detect when the dump has completed, the
+program must watch address <code>&gt;6000</code> (or more) for a non-zero word to appear.
+Note that loading a GROM-only programs will always set ROM address <code>&gt;6000</code>
+to value <code>&gt;9999</code>.</p>
 
-<p>Dumping saves the entire image in RAM/GRAM and overwrites the original image
-file on the SD card.  For technical reasons, the dump cannot be written to a
-new non-existing file, so keep a copy of the original image around.</p>
+<p>Dumping saves entire files with RAM or GRAM content and overwrites the
+original image files on the SD card.  For technical reasons, the dump cannot
+be written to new, non-existing files, so keep a copy of the original image
+around.</p>
 
 <p>The <a href="https://github.com/endlos99/finalgrom99">repository</a> contains sample code <code>lib/dump_example.a99</code> and
 <code>lib/gdump_example.gpl</code> that may serve developers as a blueprint for
@@ -719,7 +726,7 @@ directly to RAM by copying this image file as the only file on an SD card.
 This will provide the exact environment the program expects.</p>
 
 <p>If this doesn't help, the image may be incompatible.  Please send a note to
-the developer at <a href="&#109;&#x61;&#x69;&#x6C;&#116;o:&#114;&#64;&#x30;&#x78;&#x30;&#x31;&#x2E;&#x64;&#101;">&#114;&#64;&#x30;&#x78;&#x30;&#x31;&#x2E;&#x64;&#101;</a> for further analysis.</p>
+the developer at <a href="&#x6D;&#x61;&#105;&#x6C;&#116;&#x6F;:&#114;&#64;&#48;&#120;&#x30;&#x31;&#46;&#x64;&#101;">&#114;&#64;&#48;&#120;&#x30;&#x31;&#46;&#x64;&#101;</a> for further analysis.</p>
 
 <h4>Some program doesn't work properly.</h4>
 
@@ -736,7 +743,7 @@ other unexpected behavior.</p>
 menu again to eliminate most issues.  Alternatively, put the image as the
 only image on the SD card so that it is loaded directly.</p>
 
-<p>If this doesn't help, please send a note to the developer at <a href="&#109;&#x61;&#x69;&#x6C;&#116;o:&#114;&#64;&#x30;&#x78;&#x30;&#x31;&#x2E;&#x64;&#101;">&#114;&#64;&#x30;&#x78;&#x30;&#x31;&#x2E;&#x64;&#101;</a> for
+<p>If this doesn't help, please send a note to the developer at <a href="&#x6D;&#x61;&#105;&#x6C;&#116;&#x6F;:&#114;&#64;&#48;&#120;&#x30;&#x31;&#46;&#x64;&#101;">&#114;&#64;&#48;&#120;&#x30;&#x31;&#46;&#x64;&#101;</a> for
 further analysis.</p>
 
 <h4>RAM/GRAM cannot be written to.</h4>
@@ -761,7 +768,8 @@ Mini Memory.  (For details, see section "Advanced Modes".)</p>
 
 <p>Note however, that the FinalGROM 99 is not battery-backed, so any RAM
 contents will be discarded once the power is cut or a different image is
-loaded.</p>
+loaded.  There is a special Mini Memory image available that features an
+additional <code>SAVE</code> menu option.</p>
 
 <h4>Programs with known issues.</h4>
 
@@ -775,7 +783,7 @@ FinalGROM 99:</p>
 <p>Note that this list refers to particular images.  There might be alternative
 images of the same programs that work fine with the FinalGROM 99.</p>
 
-<p>Please report problems to the developer at <a href="&#109;&#x61;&#x69;&#x6C;&#116;o:&#114;&#64;&#x30;&#x78;&#x30;&#x31;&#x2E;&#x64;&#101;">&#114;&#64;&#x30;&#x78;&#x30;&#x31;&#x2E;&#x64;&#101;</a> so that they may be
+<p>Please report problems to the developer at <a href="&#x6D;&#x61;&#105;&#x6C;&#116;&#x6F;:&#114;&#64;&#48;&#120;&#x30;&#x31;&#46;&#x64;&#101;">&#114;&#64;&#48;&#120;&#x30;&#x31;&#46;&#x64;&#101;</a> so that they may be
 fixed with a future update.</p>
 
 <h2>Where to Get the FinalGROM 99</h2>
@@ -800,7 +808,7 @@ include a cartridge shell.</p>
 The other option is intended for FinalGROM 99s in cartridge shells so that
 you can mount the buttons and LEDs of your choice on the shell.</p>
 
-<p>Please contact the developer at <a href="&#109;&#x61;&#x69;&#x6C;&#116;o:&#114;&#64;&#x30;&#x78;&#x30;&#x31;&#x2E;&#x64;&#101;">&#114;&#64;&#x30;&#x78;&#x30;&#x31;&#x2E;&#x64;&#101;</a> for further information.</p>
+<p>Please contact the developer at <a href="&#x6D;&#x61;&#105;&#x6C;&#116;&#x6F;:&#114;&#64;&#48;&#120;&#x30;&#x31;&#46;&#x64;&#101;">&#114;&#64;&#48;&#120;&#x30;&#x31;&#46;&#x64;&#101;</a> for further information.</p>
 
 <p>Note that I <em>don't</em> offer cartridge shells.  There are, however,  several
 options provided by other community members.</p>
@@ -830,5 +838,5 @@ showing me how to replace the Arduino shields by proper SD sockets.</p>
 
 <p>Contributions to both hardware and software are welcome.  Please email
 feedback, support questions, inquiries for parts, and bug reports to the
-developer at <a href="&#109;&#x61;&#x69;&#x6C;&#116;o:&#114;&#64;&#x30;&#x78;&#x30;&#x31;&#x2E;&#x64;&#101;">&#114;&#64;&#x30;&#x78;&#x30;&#x31;&#x2E;&#x64;&#101;</a>.  Discussions about the FinalGROM 99 happen over at
+developer at <a href="&#x6D;&#x61;&#105;&#x6C;&#116;&#x6F;:&#114;&#64;&#48;&#120;&#x30;&#x31;&#46;&#x64;&#101;">&#114;&#64;&#48;&#120;&#x30;&#x31;&#46;&#x64;&#101;</a>.  Discussions about the FinalGROM 99 happen over at
 <a href="http://atariage.com/forums/topic/260917-the-finalgrom-99">AtariAge</a>.</p>
