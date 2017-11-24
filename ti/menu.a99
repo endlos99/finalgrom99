@@ -392,8 +392,7 @@ font_data:
        data >0000, >4020, >1008, >0400
        data >0070, >1010, >1010, >7000
 
-       ; version indicator
-;      data >0010, >3854, >1010, >1000  ; >5e
+       ; version indicator (>5e)
        text >0000009296a2a2c7  ; v1
 ;      text >0000009791a7a4c7  ; v2
 ;      text >0000009791a7a1c7  ; v3
@@ -432,7 +431,10 @@ font_data:
        text >c7c0c0dcdcdf8f07
        text >fc1c1c1c1cfcf8f0
        text >0000000000494900  ; >7e  "~" -> "..."
-       text >000000081808085c  ; >7f  extended version
+
+       ; extended version indicator (>7f)
+       ;text >000000081808085c  ; .1
+       text >0000001c041c105c  ; .2
 
        ; animation patterns
        text >0060600000060600  ; >80

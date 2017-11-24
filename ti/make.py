@@ -11,7 +11,7 @@ xga = ["xga99.py"]
 if call(xas + ["menu.a99"], shell=False):
     sys.exit("ERROR: menu.a99")
 
-with open("menu_6000.bin", "rb") as f:
+with open("menu.bin", "rb") as f:
     data = f.read()
 
 with open("menu.c", "w") as f:
@@ -37,7 +37,7 @@ with open("grom.c", "w") as f:
 if call(xas + ["help.a99"], shell=False):
     sys.exit("ERROR: help.a99")
 
-with open("help_6000.bin", "rb") as f:
+with open("help.bin", "rb") as f:
     data = f.read()
 
 with open("help.c", "w") as f:

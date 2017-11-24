@@ -25,9 +25,18 @@
  * >6A00:          TEXT 'FILENAME'            (8 chars)
  *                 DATA <image type>          (>00 GROM, >FF ROM)
  *                 DATA <start address>
- *                 TEXT 'ENTRY NAME'          (20 chars)'
- *                      (/ = folder entry)
+ *                 TEXT 'ENTRY NAME'          (20 chars)
+ *         --or--  TEXT '/ FOLDER NAME'
  * TOTAL:          171 x 32 = >1560 bytes
+ *
+ * Image types: >00--  GROM
+ *              >ff--  ROM
+ *       where: >---0  normal   --->     >--1-  ROM mode
+ *              >ff01  folder            >--2-  GROM mode
+ *              >ff02  Help Viewer       >--3-  ROM/GROM moder
+ *              >--03  dump image
+ *              >ff04  E/A5 program (not used)
+ *              (no type for Reload)
  */
 
 #define BYTES_TO_SEND       12   // "FILENAMEttaa"
@@ -54,14 +63,14 @@ static UINT bytes_read;
 static uint8_t path[128];  // 12+ levels
 static uint8_t path_len;
 uint8_t selection[BYTES_TO_SEND + 5];  // + ".BIN\0"
-uint8_t buffer[512];
+uint8_t buffer[1024];
 
 // global variables
 static uint8_t total_entries;
+static uint8_t subprograms;
 static uint32_t image_size;
-static uint8_t image_single_file;
-static uint8_t image_mask;
-static uint8_t main_bank;
+static uint8_t rom_mask, grom_mask;
+static uint8_t rom_dump_bank, grom_dump_bank;
 
 // pre-compiled TI programs
 #include "menu.c"
@@ -77,6 +86,7 @@ static void genMenuGROM(void);
 static void saveFile(void);
 static uint32_t loadFile(uint8_t *);
 static uint8_t *buildPath(char *);
+static void dumpBank(uint8_t, uint8_t);
 static void jtag(void);
 static void genFileEntry(uint8_t *, uint16_t, uint16_t, uint8_t);
 
@@ -110,6 +120,7 @@ uint8_t genMenu()
 {
   uint8_t total_images = 0;
   total_entries = 0;
+  subprograms = 0;
 
   // disable cart
   led(1);
@@ -141,7 +152,7 @@ uint8_t genMenu()
     if (sd_fno.fname[0] == 0)  // end of dir
       break;
     if (sd_fno.fattrib & (AM_HID | AM_SYS))
-      continue;
+      continue;  // skip hidden and system files
 
     uint8_t added = (sd_fno.fattrib & AM_DIR) ?
       genFolderEntry((const uint8_t *)sd_fno.fname) :
@@ -160,8 +171,8 @@ uint8_t genMenu()
   writeEnd();
   led(0);
 
-  // if only one image found in "/", load file directly
-  return (total_images == 1 && path_len == 0);
+  // if only one image/subprograms found in "/", load file directly
+  return total_images + subprograms == 1 && path_len == 0;
 }
 
 static uint8_t genFolderEntry(const uint8_t *fn)
@@ -254,8 +265,14 @@ static uint8_t genProgEntries(uint8_t *fn)
       return 0;  // corrupt image
     if (*q != 'G' && (buffer[0] != 0xaa || buffer[6] < 0x60 || buffer[6] >= 0x80))
       return 0;  // invalid ROM image
-    if (*q == 'G' && buffer[0] == 0xaa && buffer[1] >= 0x80)
-      return genAutostartEntry(fn);  // GROM autostart image
+    if (*q == 'G' && buffer[0] == 0xaa) {  // GROM image
+      if (buffer[1] >= 0x80)
+        return genAutostartEntry(fn);  // autostart image
+      if (buffer[4] >= 0x60 && buffer[5] != 0) {
+        ++subprograms;  // contains subprograms
+        return 0;  // no menu entry, only include for single mode
+      }
+    }
     next = ((uint16_t)buffer[6] << 8) + buffer[7];  // first menu entry
     if (*q != 'G' ||  // valid ROM image
         (buffer[0] == 0xaa && next >= 0x6000))  // valid GROM image
@@ -266,9 +283,9 @@ static uint8_t genProgEntries(uint8_t *fn)
 
   // get mode configuration
   switch (buffer[3]) {
-  case 'G':  img_type |= MODE_GRAM;  break;
-  case 'R':  img_type |= MODE_RAM;  break;
-  case 'X':  img_type |= MODE_RAM | MODE_GRAM;  break;
+  case 'G': img_type |= MODE_GRAM;  break;
+  case 'R': img_type |= MODE_RAM;   break;
+  case 'X': img_type |= MODE_RAM | MODE_GRAM;  break;
   }
 
   // read all entries from metadata
@@ -471,7 +488,7 @@ static void saveFile()
 
 void loadImage()
 {
-  uint8_t files = 0, banks;
+  uint8_t banks;
   uint32_t size, grom_size = 0, rom_size = 0;
 
   // begin transmission
@@ -481,22 +498,22 @@ void loadImage()
   // build path
   uint8_t *p = buildPath("BIN");  // p at '.'
   uint8_t *q = p - 1;  // q at last name char == bank indicator
-  main_bank = *q;  // save main bank
 
   // get config
-  uint8_t config = selection[9] >> 4;
+  uint8_t config = selection[9];  // RAM/GRAM mode?
+  rom_dump_bank = grom_dump_bank = 0;  // no dumps per default
 
   // load GROM image file
   writeSize(0x80);  // clear and open GROMs
   if (*q == 'G') {  // could also use selection[8]
     size = loadFile(path);
+    if (size)
+      grom_dump_bank = config & MODE_GRAM ? *q : 0;  // GRAM bank to dump
     banks = (size + 8191) / 8192;  // round up
-    image_mask = 0x80 + (1 << banks) - 1;
-    writeSize(image_mask);  // set active GROMs (unary)
+    grom_mask = 0x80 + (1 << banks) - 1;
+    writeSize(grom_mask);  // set active GROMs (unary)
     *q = 'C';  // load matching ROM banks
     grom_size = size;
-    if (size)
-      ++files;
   }
 
   // load ROM image files
@@ -506,27 +523,27 @@ void loadImage()
     size = loadFile(path);
     if (size == 0)
       break;
+    rom_dump_bank = config & MODE_RAM && cnt == 0 ? *q : 0;  // RAM bank to dump
     rom_size += size;
-    ++files;
     if ((*q)++ - cnt++ != 'C')
       break;  // no multi-file
   }
 
+  // set ROM bank mask
   banks = (rom_size + 8191) / 8192;  // round up
   if (banks > 0) {
-    // set ROM bank mask
+    // set mask of available banks
     uint8_t i = 0;
     banks += banks - 1;  // round up again
     while ((banks >>= 1)) ++i; // find left-most bit
-    image_mask = (1 << i) - 1;
-    writeSize(image_mask);  // set ROM bank mask (binary)
+    rom_mask = (1 << i) - 1;
+    writeSize(rom_mask);  // set ROM bank mask (binary)
   } else {
-    // write bogus bytes for end-of-load detection
+    // write bogus bytes for end-of-load detection instead
     writeByte(0x99);
     writeByte(0x99);
   }
 
-  image_single_file = files == 1;
   image_size = grom_size + rom_size;
 
   if (image_size == 0) {
@@ -535,7 +552,7 @@ void loadImage()
   }
 
   // stop transmission
-  setConfig(config);
+  setConfig(config >> 4);
   writeEnd();
   led(0);
 }
@@ -698,46 +715,57 @@ uint8_t loadHelp()
 // reads image data back and writes them to SD card
 void dumpImage()
 {
-  uint8_t *p;
-  UINT bw;
-
   // cart still offline
   led(1);
 
-  if (!image_single_file)  // can only dump single file
+  if (!rom_dump_bank && !grom_dump_bank)  // nothing to dump
     flash_error(2);
+
+  if (grom_dump_bank)
+    dumpBank(grom_dump_bank, grom_mask);
+  if (rom_dump_bank)
+    dumpBank(rom_dump_bank, rom_mask);
+
+  led(0);
+}
+
+static void dumpBank(uint8_t bank, uint8_t mask)
+{
+  uint8_t *p;
+  UINT bw;
 
   // prepare file for dumping
   for (p = path + path_len; *p != '.'; ++p);  // find extension
-  *(--p) = main_bank;  // restore single file
+  *(--p) = bank;  // restore single file
   if (pf_open((const char *)path))
     flash_error(3);
 
   // open SRAM for read
-  uint8_t mask = (image_mask & 0x80) ? image_mask | 0x40 : image_mask;
-                                       // don't reset GROM status
+  uint8_t dumpmask = mask & 0x80 ? mask | 0x40 : mask;  // don't reset GROM status
   writeBegin();
-  writeSize(mask);  // reset SRAM address, but keep mask
+  writeSize(dumpmask);  // reset SRAM address, but keep mask
   writeEnd();
-  readBegin();  // start reading from SRAM
+
+  // start reading from SRAM
+  readBegin();
 
   // read and dump each SRAM byte
   uint16_t idx = 0;
   for (uint32_t i = image_size; i > 0; --i) {
     buffer[idx++] = readByte();
-    if (idx == 512 || i == 1) {  // end of sector/image
+    if (idx == sizeof(buffer) || i == 1) {  // end of buffer or image
       if (pf_write(buffer, idx, &bw))
         flash_error(3);
-      if (bw < 512)
+      if (bw < sizeof(buffer))
         break;
       idx = 0;
     }
   }
-  if (idx)
-    pf_write(0, 0, &bw);  // finalize write
 
+  // finalize write
+  if (idx)
+    pf_write(0, 0, &bw);
   readEnd();
-  led(0);
 }
 
 

@@ -586,7 +586,20 @@ reset button once.
 This update delays the mounting of the SD card by half a millisecond, and
 ignores hidden and system files and folders on the SD card.
 
-[Download](/updates/version_1_1.avr)
+[Download 1.1](/updates/version_1_1.avr)
+
+
+### Update 1.2
+
+Issues:
+  - None
+
+This update improves the dumping capability.  The FinalGROM 99 now can dump
+ROM images, GROM images, and mixed images with at most one ROM bank.  This
+functionality is needed for the persisting Mini Memory image with `SAVE`
+option.
+
+[Download 1.2](/updates/version_1_2.avr)
 
 
 Troubleshooting the FinalGROM 99

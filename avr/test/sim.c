@@ -26,6 +26,7 @@ extern uint8_t *path;
 
 FILE *m_from = NULL;
 FILE *m_fgrom = NULL;
+FILE *m_fdump = NULL;
 FILE *m_f = NULL;
 char m_buff[10000];
 
@@ -46,6 +47,7 @@ uint8_t pgm_read_byte(const uint8_t *p)
 
 void init()
 {
+  m_fdump = fopen("DUMP.bin", "wb");
 }
 
 void writeBegin()
@@ -240,6 +242,8 @@ FRESULT pf_readdir(DIR* dj, FILINFO* fno)
 
 FRESULT pf_write (const void* buff, UINT btw, UINT* bw)
 {
+  printf("fwrite: %d\n", btw);
+  *bw = fwrite(buff, 1, btw, m_fdump);
   return 0;
 }
 
@@ -281,22 +285,26 @@ int main(int argc, char **argv)
     loadImage();
   }
 
-  if (argc == 3) {
+  if (argc > 2) {
     // wait for menu selection
     char *p = m_send;  // will be received
-    char *q = argv[2];
-    for (uint8_t i = 0; i < 14; ++i) {
-      switch (*q) {
-      case '0': *p++ = 0; break;  // program
-      case '1': *p++ = 1; break;  // change dir
-      case '2': *p++ = 2; break;  // help
-      case '3': *p++ = 3; break;  // dump
-      case 'x': *p++ = 255; break;
-      default: *p++ = *q;
-      }
-      ++q;
-    }
 
+    // filename (ASCII)
+    char *q = argv[2];
+    for (uint8_t i = 0; i < 8; ++i)
+      *p++ = *q ? *q++ : 0;
+
+    // type information (hex)
+    q = argv[3];
+    char hex[3] = "00";
+    for (uint8_t i = 0; i < 8; i += 2) {
+      hex[0] = *q++;  hex[1] = *q++;
+      long v = strtol(hex, NULL, 16);
+      *p++ = (char)v;
+    }
+    printf("loading: %s\n", m_send);
+
+    // execute selection action
     uint8_t s = selectImage(0);
     if (s == SEL_PROGRAM) {
       printf("load image ...\n");
@@ -305,7 +313,8 @@ int main(int argc, char **argv)
       printf("generating help ...\n");
       loadHelp();  // show help file
     } else if (s == SEL_DUMP) {
-      printf("dumping image ...\n");
+      printf("loading and dumping image ...\n");
+      loadImage();
       dumpImage();
     } else {
       changeDir();  // cd into selected folder
