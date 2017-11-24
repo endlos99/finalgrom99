@@ -547,8 +547,8 @@ need to rename such a file to <code>UPDATE.AVR</code> and copy it onto an SD car
 Insert it into the FinalGROM 99, plug the FinalGROM 99 into the TI 99 and
 turn on the console.  The update will start automatically, and is complete
 after a few seconds when the LED turns off.  Make sure to remove the SD card
-first before you reset the FinalGROM 99 or power-cycle the console!
-(Otherwise, the update will be applied again.)</p>
+first before you reset the FinalGROM 99 or power-cycle the console, and to delete
+the `UPDATE.AVR` before you use the SD card again! (Otherwise, the update will be applied again.)</p>
 
 <p><strong>IMPORTANT!</strong> Do not turn off the the TI 99 while the update is in
 progress!  You may brick your FinalGROM 99, which will require an AVR
@@ -558,7 +558,8 @@ programmer to debrick again.</p>
 such a file to <code>UPDATE.PLD</code> and copy it to an SD card.  Now follow the
 procedure above.  The update will take about 15 seconds.  Note that the TI
 may crash during the update, but this does no harm.  Do not forget to remove
-the SD card before you power cycle or reset the FinalGROM 99!</p>
+the SD card before you power cycle or reset the FinalGROM 99, and to delete
+the `UPDATE.AVR` before you use the SD card again!</p>
 
 <p>A failed <code>.PLD</code> update may leave your FinalGROM 99 not working, but it
 cannot brick your cart.  In case of a failure, make sure the update file is
@@ -781,7 +782,6 @@ images of the same programs that work fine with the FinalGROM 99.</p>
 <p>Please report problems to the developer at <a href="&#x6D;&#97;&#105;&#108;t&#111;:&#x72;&#64;&#x30;&#120;&#48;&#49;&#x2E;&#100;&#101;">&#x72;&#64;&#x30;&#120;&#48;&#49;&#x2E;&#100;&#101;</a> so that they may be
 fixed with a future update.</p>
 
-<!--
 <h2>Where to Get the FinalGROM 99</h2>
 
 <p>The <a href="https://github.com/endlos99/finalgrom99">GitHub repository</a> contains all hardware design files and software
@@ -811,7 +811,7 @@ you can mount the buttons and LEDs of your choice on the shell.</p>
 <li> <a href="http://atariage.com/forums/topic/260420-fs-3d-printed-cases-for-ti99-and-other-systems/">c0d3m4st4</a> offers 3d-printed shells that are similar to his cases for the FlashROM 99.
 <li> <a href="https://www.thingiverse.com/thing:2458688">remowilliams</a> provides an awesome looking STL file (for free!) that you can use to print your own shell.
 </ul>
--->
+<p>These third-party shells need the fully assembled cart with buttons and LED!</p>
 
 <h2>About the Project</h2>
 
