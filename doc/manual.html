@@ -386,7 +386,7 @@ known issues.</p>
 
 <p>If you find additional images that don't work as intended on the FinalGROM
 99, first check their filenames (see section "Filenames"), and then please
-send a note to the developer at <a href="&#109;a&#x69;&#x6C;&#116;o:&#114;&#64;&#x30;x&#48;&#x31;&#46;&#x64;&#x65;">&#114;&#64;&#x30;x&#48;&#x31;&#46;&#x64;&#x65;</a>.  Compatibility may be improved
+send a note to the developer at <a href="&#109;&#x61;&#x69;&#x6C;&#x74;&#x6F;:&#x72;&#64;&#x30;&#x78;&#x30;&#49;&#46;&#100;&#x65;">&#x72;&#64;&#x30;&#x78;&#x30;&#49;&#46;&#100;&#x65;</a>.  Compatibility may be improved
 with a firmware update.</p>
 
 <h2>How to Develop for the FinalGROM 99</h2>
@@ -534,8 +534,9 @@ need to rename such a file to <code>UPDATE.AVR</code> and copy it onto an SD car
 Insert it into the FinalGROM 99, plug the FinalGROM 99 into the TI 99 and
 turn on the console.  The update will start automatically, and is complete
 after a few seconds when the LED turns off.  Make sure to remove the SD card
-first before you reset the FinalGROM 99 or power-cycle the console!
-(Otherwise, the update will be applied again.)</p>
+first before you reset the FinalGROM 99 or power-cycle the console, and to
+delete the <code>UPDATE.AVR</code> before you use the SD card again!  (Otherwise, the
+update will be applied again.)</p>
 
 <p><strong>IMPORTANT!</strong> Do not turn off the the TI 99 while the update is in
 progress!  You may brick your FinalGROM 99, which will require an AVR
@@ -545,7 +546,8 @@ programmer to debrick again.</p>
 such a file to <code>UPDATE.PLD</code> and copy it to an SD card.  Now follow the
 procedure above.  The update will take about 15 seconds.  Note that the TI
 may crash during the update, but this does no harm.  Do not forget to remove
-the SD card before you power cycle or reset the FinalGROM 99!</p>
+the SD card before you power cycle or reset the FinalGROM 99, and to delete
+the <code>UPDATE.AVR</code> before you use the SD card again!</p>
 
 <p>A failed <code>.PLD</code> update may leave your FinalGROM 99 not working, but it
 cannot brick your cart.  In case of a failure, make sure the update file is
@@ -705,7 +707,7 @@ directly to RAM by copying this image file as the only file on an SD card.
 This will provide the exact environment the program expects.</p>
 
 <p>If this doesn't help, the image may be incompatible.  Please send a note to
-the developer at <a href="&#109;a&#105;&#108;&#x74;o:&#114;&#64;&#x30;&#x78;&#48;&#x31;&#x2E;&#x64;&#101;">&#114;&#64;&#x30;&#x78;&#48;&#x31;&#x2E;&#x64;&#101;</a> for further analysis.</p>
+the developer at <a href="&#109;&#x61;&#x69;&#x6C;&#x74;&#x6F;:&#x72;&#64;&#x30;&#x78;&#x30;&#49;&#46;&#100;&#x65;">&#x72;&#64;&#x30;&#x78;&#x30;&#49;&#46;&#100;&#x65;</a> for further analysis.</p>
 
 <h4>Some program doesn't work properly.</h4>
 
@@ -722,7 +724,7 @@ other unexpected behavior.</p>
 menu again to eliminate most issues.  Alternatively, put the image as the
 only image on the SD card so that it is loaded directly.</p>
 
-<p>If this doesn't help, please send a note to the developer at <a href="&#x6D;&#97;&#x69;&#x6C;&#x74;&#x6F;:&#114;&#64;&#x30;x0&#x31;&#46;&#x64;&#x65;">&#114;&#64;&#x30;x0&#x31;&#46;&#x64;&#x65;</a> for
+<p>If this doesn't help, please send a note to the developer at <a href="&#109;&#x61;&#x69;&#x6C;&#x74;&#x6F;:&#x72;&#64;&#x30;&#x78;&#x30;&#49;&#46;&#100;&#x65;">&#x72;&#64;&#x30;&#x78;&#x30;&#49;&#46;&#100;&#x65;</a> for
 further analysis.</p>
 
 <h4>RAM/GRAM cannot be written to.</h4>
@@ -761,7 +763,7 @@ FinalGROM 99:</p>
 <p>Note that this list refers to particular images.  There might be alternative
 images of the same programs that work fine with the FinalGROM 99.</p>
 
-<p>Please report problems to the developer at <a href="&#109;&#97;&#105;&#108;&#116;o:&#x72;&#64;&#x30;&#120;&#48;&#49;.&#x64;&#101;">&#x72;&#64;&#x30;&#120;&#48;&#49;.&#x64;&#101;</a> so that they may be
+<p>Please report problems to the developer at <a href="&#109;&#x61;&#x69;&#x6C;&#x74;&#x6F;:&#x72;&#64;&#x30;&#x78;&#x30;&#49;&#46;&#100;&#x65;">&#x72;&#64;&#x30;&#x78;&#x30;&#49;&#46;&#100;&#x65;</a> so that they may be
 fixed with a future update.</p>
 
 <h2>Where to Get the FinalGROM 99</h2>
@@ -786,7 +788,19 @@ include a cartridge shell.</p>
 The other option is intended for FinalGROM 99s in cartridge shells so that
 you can mount the buttons and LEDs of your choice on the shell.</p>
 
-<p>Please contact the developer at <a href="&#x6D;&#x61;&#x69;&#108;&#116;&#111;:&#114;&#64;&#48;&#120;&#x30;&#x31;&#x2E;&#100;&#101;">&#114;&#64;&#48;&#120;&#x30;&#x31;&#x2E;&#100;&#101;</a> for further information.</p>
+<p>Please contact the developer at <a href="&#109;&#x61;&#x69;&#x6C;&#x74;&#x6F;:&#x72;&#64;&#x30;&#x78;&#x30;&#49;&#46;&#100;&#x65;">&#x72;&#64;&#x30;&#x78;&#x30;&#49;&#46;&#100;&#x65;</a> for further information.</p>
+
+<p>Note that I <em>don't</em> offer cartridge shells.  There are, however,  several
+options provided by other community members.</p>
+
+<ul>
+<li><a href="http://atariage.com/forums/topic/260420-fs-3d-printed-cases-for-ti">c0d3m4st4</a> offers 3d-printed shells that are similar to his cases for
+the FlashROM 99.</li>
+<li><a href="https://www.thingiverse.com/thing:2458688">remowilliams</a> provides an awesome looking STL file (for free!) that
+you can use to print your own shell</li>
+</ul>
+
+<p>These third-party shells need the fully assembled cart with buttons and LED!</p>
 
 <h2>About the Project</h2>
 
@@ -804,5 +818,5 @@ showing me how to replace the Arduino shields by proper SD sockets.</p>
 
 <p>Contributions to both hardware and software are welcome.  Please email
 feedback, support questions, inquiries for parts, and bug reports to the
-developer at <a href="&#109;&#x61;&#x69;&#x6C;&#x74;o:&#114;&#64;&#48;&#120;0&#49;&#46;&#100;e">&#114;&#64;&#48;&#120;0&#49;&#46;&#100;e</a>.  Discussions about the FinalGROM 99 happen over at
+developer at <a href="&#109;&#x61;&#x69;&#x6C;&#x74;&#x6F;:&#x72;&#64;&#x30;&#x78;&#x30;&#49;&#46;&#100;&#x65;">&#x72;&#64;&#x30;&#x78;&#x30;&#49;&#46;&#100;&#x65;</a>.  Discussions about the FinalGROM 99 happen over at
 <a href="http://atariage.com/forums/topic/260917-the-finalgrom-99">AtariAge</a>.</p>

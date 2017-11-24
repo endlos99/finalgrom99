@@ -540,8 +540,9 @@ need to rename such a file to `UPDATE.AVR` and copy it onto an SD card.
 Insert it into the FinalGROM 99, plug the FinalGROM 99 into the TI 99 and
 turn on the console.  The update will start automatically, and is complete
 after a few seconds when the LED turns off.  Make sure to remove the SD card
-first before you reset the FinalGROM 99 or power-cycle the console!
-(Otherwise, the update will be applied again.)
+first before you reset the FinalGROM 99 or power-cycle the console, and to
+delete the `UPDATE.AVR` before you use the SD card again!  (Otherwise, the
+update will be applied again.)
 
 **IMPORTANT!** Do not turn off the the TI 99 while the update is in
 progress!  You may brick your FinalGROM 99, which will require an AVR
@@ -551,7 +552,8 @@ Files ending in `.PLD` will update the main logic inside the CPLD.  Rename
 such a file to `UPDATE.PLD` and copy it to an SD card.  Now follow the
 procedure above.  The update will take about 15 seconds.  Note that the TI
 may crash during the update, but this does no harm.  Do not forget to remove
-the SD card before you power cycle or reset the FinalGROM 99!
+the SD card before you power cycle or reset the FinalGROM 99, and to delete
+the `UPDATE.AVR` before you use the SD card again!
 
 A failed `.PLD` update may leave your FinalGROM 99 not working, but it
 cannot brick your cart.  In case of a failure, make sure the update file is
@@ -790,6 +792,16 @@ you can mount the buttons and LEDs of your choice on the shell.
 
 Please contact the developer at <r@0x01.de> for further information.
 
+Note that I *don't* offer cartridge shells.  There are, however,  several
+options provided by other community members.
+
+* [c0d3m4st4][11] offers 3d-printed shells that are similar to his cases for
+  the FlashROM 99.
+* [remowilliams][12] provides an awesome looking STL file (for free!) that
+  you can use to print your own shell.
+
+These third-party shells need the fully assembled cart with buttons and LED!
+
 
 About the Project
 -----------------
@@ -822,3 +834,5 @@ developer at <r@0x01.de>.  Discussions about the FinalGROM 99 happen over at
 [8]: http://elm-chan.org/fsw/ff/00index_p.html
 [9]: http://www.xilinx.com/support/documentation/application_notes/xapp058.pdf
 [10]: http://atariage.com/forums/topic/260917-the-finalgrom-99
+[11]: http://atariage.com/forums/topic/260420-fs-3d-printed-cases-for-ti
+[12]: https://www.thingiverse.com/thing:2458688
