@@ -813,8 +813,12 @@ you can mount the buttons and LEDs of your choice on the shell.
 
 Please contact the developer at <r@0x01.de> for further information.
 
-Note that I *don't* offer cartridge shells.  There are, however,  several
-options provided by other community members.
+**Please note that any FinalGROM 99s appearing on ebay in quantities are
+produced by unauthorized persons with unknown quality and are not supported
+by me!**
+
+While I don't offer cartridge shells, there are several options provided by
+other community members:
 
 * [c0d3m4st4][11] offers 3d-printed shells that are similar to his cases for
   the FlashROM 99.
@@ -822,6 +826,7 @@ options provided by other community members.
   you can use to print your own shell.
 
 These third-party shells need the fully assembled cart with buttons and LED!
+
 
 
 About the Project
