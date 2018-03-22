@@ -609,6 +609,18 @@ option.
 [Download 1.2](/updates/version_1_2.avr)
 
 
+### Update 1.3
+
+Issues:
+  - Programs of images with subprograms, e.g., TE II, are no longer shown
+    in the FinalGROM 99 menu.
+
+This update fixes this issue, while still auto-loading single images with
+only subprograms.
+
+[Download 1.3](/updates/version_1_3.avr)
+
+
 Troubleshooting the FinalGROM 99
 --------------------------------
 
@@ -804,7 +816,7 @@ Please fill out and include this snippet in your inquiry:
     Amount
     [    ] assembled FinalGROM 99 board, buttons and LED soldered    €45
     [    ] assembled FinalGROM 99 board, without buttons and LED     €45
-	[    ] FinalGROM 99 laminated cartridge label                    € 1
+    [    ] FinalGROM 99 laminated cartridge label                    € 1
            world-wide shipping for up to two carts                   €10
 
 Get the first option if you plan to use your FinalGROM 99 without shell.
