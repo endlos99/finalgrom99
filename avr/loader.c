@@ -259,7 +259,7 @@ static uint8_t genProgEntries(uint8_t *fn)
   // search for metadata
   uint16_t pos = 0x0000;
   while (1) {
-    if (pf_read(buffer, 8, &bytes_read))
+    if (pf_read(buffer, 12, &bytes_read))
       return 0;  // bad file
     if (bytes_read < 8)
       return 0;  // corrupt image
@@ -268,10 +268,6 @@ static uint8_t genProgEntries(uint8_t *fn)
     if (*q == 'G' && buffer[0] == 0xaa) {  // GROM image
       if (buffer[1] >= 0x80)
         return genAutostartEntry(fn);  // autostart image
-      if (buffer[4] >= 0x60 && buffer[5] != 0) {
-        ++subprograms;  // contains subprograms
-        return 0;  // no menu entry, only include for single mode
-      }
     }
     next = ((uint16_t)buffer[6] << 8) + buffer[7];  // first menu entry
     if (*q != 'G' ||  // valid ROM image
@@ -280,6 +276,10 @@ static uint8_t genProgEntries(uint8_t *fn)
     pos += 0x2000;
     pf_lseek(pos);  // check higher GROM for start menu
   }
+
+  // check for subprograms
+  if (*q == 'G' && buffer[10] >= 0x60)
+    ++subprograms;
 
   // get mode configuration
   switch (buffer[3]) {

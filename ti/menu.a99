@@ -434,7 +434,8 @@ font_data:
 
        ; extended version indicator (>7f)
        ;text >000000081808085c  ; .1
-       text >0000001c041c105c  ; .2
+       ;text >0000001c041c105c  ; .2
+       text >0000001804080458  ; .3
 
        ; animation patterns
        text >0060600000060600  ; >80
