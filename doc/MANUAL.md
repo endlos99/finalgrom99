@@ -816,8 +816,8 @@ Please fill out and include this snippet in your inquiry:
     Amount
     [    ] assembled FinalGROM 99 board, buttons and LED soldered    €45
     [    ] assembled FinalGROM 99 board, without buttons and LED     €45
-    [    ] FinalGROM 99 laminated cartridge label                    € 1
-           world-wide shipping for up to two carts                   €10
+    [    ] FinalGROM 99 laminated cartridge label               SOLD OUT 
+           S&H to most countries for one/two carts                 €8/14
 
 Get the first option if you plan to use your FinalGROM 99 without shell.
 The other option is intended for FinalGROM 99s in cartridge shells so that
