@@ -807,38 +807,11 @@ Where to Get the FinalGROM 99
 The [GitHub repository][2] contains all hardware design files and software
 sources required to build the FinalGROM 99 by yourself.
 
-Since the technology used is somewhat complex for a hobby project, you can
-get fully assembled FinalGROM 99 cartridges.  Note that this offer *doesn't*
-include a cartridge shell.
+Also, fully assembled FinalGROM 99 carts are sold by various people on the
+net, including [11][Arcadeshopper] and [12][The Brewing Academy].
 
-Please fill out and include this snippet in your inquiry:
-
-    Amount
-    [    ] assembled FinalGROM 99 board, buttons and LED soldered    €45
-    [    ] assembled FinalGROM 99 board, without buttons and LED     €45
-    [    ] FinalGROM 99 laminated cartridge label               SOLD OUT 
-           S&H to most countries for one/two carts                 €8/14
-
-Get the first option if you plan to use your FinalGROM 99 without shell.
-The other option is intended for FinalGROM 99s in cartridge shells so that
-you can mount the buttons and LEDs of your choice on the shell.
-
-Please contact the developer at <r@0x01.de> for further information.
-
-**Please note that any FinalGROM 99s appearing on ebay in quantities are
-produced by unauthorized persons with unknown quality and are not supported
-by me!**
-
-While I don't offer cartridge shells, there are several options provided by
-other community members:
-
-* [c0d3m4st4][11] offers 3d-printed shells that are similar to his cases for
-  the FlashROM 99.
-* [remowilliams][12] provides an awesome looking STL file (for free!) that
-  you can use to print your own shell.
-
-These third-party shells need the fully assembled cart with buttons and LED!
-
+Please note that I no longer offer FinalGROMs myself, as I want to focus
+on my current project, the [13][SDD 99] (working title).
 
 
 About the Project
@@ -872,5 +845,6 @@ developer at <r@0x01.de>.  Discussions about the FinalGROM 99 happen over at
 [8]: http://elm-chan.org/fsw/ff/00index_p.html
 [9]: http://www.xilinx.com/support/documentation/application_notes/xapp058.pdf
 [10]: http://atariage.com/forums/topic/260917-the-finalgrom-99
-[11]: http://atariage.com/forums/topic/260420-fs-3d-printed-cases-for-ti
-[12]: https://www.thingiverse.com/thing:2458688
+[11]: https://www.arcadeshopper.com/wp/
+[12]: https://thebrewingacademy.com/products/texas-instruments-finalgrom-99
+[13]: https://www.youtube.com/watch?v=Ec6F9VOU9Bc
