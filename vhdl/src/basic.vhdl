@@ -102,7 +102,8 @@ architecture Behavioral of logic is
 
   -- image selection signals
   signal selection : std_logic_vector(8 downto 0);  -- clock & byte
-
+  signal romWrite : std_logic := '1';
+  
   -- address counters
   signal loadAddr : std_logic_vector(19 downto 0);  -- 1 MB
   signal ramAddr : std_logic_vector(19 downto 0);  -- (4 & 3) & 13
@@ -164,10 +165,12 @@ begin
          RAM_DX when action = LOAD and subaction = RDUMP else  -- dump image
          (others => 'Z');
 
+  romWrite <= '0' when ROMS = '0' and WE = '0' else '1';
+  
   -- clock transfer to uC
   CX <= selection(8) when action = RUN else
         'Z';
-
+  
   -- GROM Ready logic
   with grstate select
     GR <= '0' when GR0,
@@ -241,9 +244,9 @@ begin
   end process;
 
   -- image selection
-  PSELC: process(action, ROMS, WE, BUS_AX)
+  PSELC: process(action, romWrite, BUS_AX)
   begin
-    if action = RUN and ROMS = '0' and WE = '0' then
+    if action = RUN and falling_edge(romWrite) then
       -- select image
       selection <= BUS_AX(12) & BUS_AX(8 downto 1);
     end if;
