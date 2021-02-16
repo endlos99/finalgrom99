@@ -84,7 +84,7 @@ To build the FinalGROM 99, you need the following components:
 - 1x FinalGROM 99 PCB
 - 1x Xilinx XC95144XL-10TQ100 (TQFP-100)
 - 1x Atmel ATmega 328P (TQPF-32)
-- 1x Cypress SRAM CY62158ELL-45ZSXI (TSOP-44)
+- 1x Cypress SRAM CY62158EV30LL-45ZSXI (TSOP-44)
 - 1x On Semiconductor Voltage Converter NCP1117ST33T3G (SOT-223)
 - 12x 100 nF ceramic capacitors (SMD 0603)
 - 2x 10 uF tantalum capacitors (SMD 0603)
