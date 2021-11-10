@@ -222,7 +222,7 @@ developer at <r@0x01.de>.
 [4]: https://endlos99.github.io/xdt99
 [5]: http://www.ohwr.org/projects/cernohl/wiki
 [6]: http://www.gnu.org/licenses/gpl.html
-[7]: http://kicad-pcb.org
+[7]: http://kicad.org
 [8]: http://www.nongnu.org/avrdude/
 [9]: https://www.xilinx.com/products/design-tools/ise-design-suite/ise-webpack.html
 [10]: http://elm-chan.org/fsw/ff/00index_p.html
