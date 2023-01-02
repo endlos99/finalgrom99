@@ -121,7 +121,7 @@ cartridge shell.
 
 ![Mounted in Cartridge Shell](/doc/cartshell.jpg)
 
-Please note that I don't offer icarts, boards, or parts myself.
+Please note that I don't offer carts, boards, or parts myself.
 
 
 ### Software
