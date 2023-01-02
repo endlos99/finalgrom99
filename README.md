@@ -121,8 +121,7 @@ cartridge shell.
 
 ![Mounted in Cartridge Shell](/doc/cartshell.jpg)
 
-If you don't want to build the board yourself, please refer to the homepage
-for available options.
+Please note that I don't offer icarts, boards, or parts myself.
 
 
 ### Software
